@@ -29,6 +29,8 @@ export class MapComponent {
   ) { }
 
   onMapReady(map: Map) {
+    map.setMaxBounds([[-90, -180], [90, 180]]);
+
     L.marker(latLng(0, 0), {
       icon: this.aircraftIconService.forIcao('B738'),
       rotationAngle: 45,
