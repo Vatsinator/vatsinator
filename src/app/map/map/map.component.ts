@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
-import { tileLayer, latLng, circle, polygon } from 'leaflet';
+import { tileLayer, latLng, Map } from 'leaflet';
+import * as L from 'leaflet';
+import 'leaflet-rotatedmarker';
+import { AircraftIconService } from '../aircraft-icon.service';
 
 @Component({
   selector: 'app-map',
@@ -20,5 +23,19 @@ export class MapComponent {
     zoom: 3,
     center: latLng(0, 0),
   };
+
+  constructor(
+    private aircraftIconService: AircraftIconService,
+  ) { }
+
+  onMapReady(map: Map) {
+    L.marker(latLng(0, 0), {
+      icon: this.aircraftIconService.forIcao('B738'),
+      rotationAngle: 45,
+      rotationOrigin: 'center center',
+      // title: 'SPVAT',
+      riseOnHover: true,
+    }).addTo(map).bindTooltip('SPVAT');
+  }
 
 }
