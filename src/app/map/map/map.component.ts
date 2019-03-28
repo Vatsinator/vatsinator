@@ -22,6 +22,8 @@ export class MapComponent {
     ],
     zoom: 3,
     center: latLng(0, 0),
+    maxBounds: [[-90, -180], [90, 180]],
+    preferCanvas: true,
   };
 
   constructor(
@@ -29,15 +31,18 @@ export class MapComponent {
   ) { }
 
   onMapReady(map: Map) {
-    map.setMaxBounds([[-90, -180], [90, 180]]);
-
     L.marker(latLng(0, 0), {
       icon: this.aircraftIconService.forIcao('B738'),
       rotationAngle: 45,
       rotationOrigin: 'center center',
       // title: 'SPVAT',
       riseOnHover: true,
-    }).addTo(map).bindTooltip('SPVAT');
+    })
+    .addTo(map)
+    .bindTooltip('SPVAT', {
+      offset: [0, -12],
+      direction: 'top',
+    });
   }
 
 }
