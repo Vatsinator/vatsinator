@@ -11,7 +11,7 @@ import { AircraftIconService } from '../aircraft-icon.service';
 })
 export class MapComponent {
 
-  options = {
+  options: L.MapOptions = {
     layers: [
       tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         // tslint:disable-next-line:max-line-length
