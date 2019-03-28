@@ -3,6 +3,10 @@ import { tileLayer, latLng, Map } from 'leaflet';
 import * as L from 'leaflet';
 import 'leaflet-rotatedmarker';
 import { AircraftIconService } from '../aircraft-icon.service';
+import { VatsimService } from '../vatsim.service';
+import { Client } from '../models/client';
+import { Pilot } from '../models/pilot';
+import { map, filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-map',
@@ -28,21 +32,27 @@ export class MapComponent {
 
   constructor(
     private aircraftIconService: AircraftIconService,
+    private vatsimService: VatsimService,
   ) { }
 
-  onMapReady(map: Map) {
-    L.marker(latLng(0, 0), {
-      icon: this.aircraftIconService.forIcao('B738'),
-      rotationAngle: 45,
-      rotationOrigin: 'center center',
-      // title: 'SPVAT',
-      riseOnHover: true,
-    })
-    .addTo(map)
-    .bindTooltip('SPVAT', {
-      offset: [0, -12],
-      direction: 'top',
-    });
+  onMapReady(theMap: Map) {
+    this.vatsimService.clients.pipe(
+      map(clients => clients.filter(c => c.type === 'pilot')),
+      map(clients => clients.map(c => this.createMarker(c))),
+    ).subscribe(markers => markers.forEach(marker => marker.addTo(theMap)));
+  }
+
+  private createMarker(client: Client): L.Marker<any> {
+    if (client.type === 'pilot') {
+      const pilot = client as Pilot;
+      return L.marker(latLng(pilot.position.latitude, pilot.position.longitude), {
+        icon: this.aircraftIconService.forIcao(pilot.aircraft),
+        rotationAngle: pilot.heading,
+        rotationOrigin: 'center center',
+        riseOnHover: true,
+      })
+      .bindTooltip(pilot.callsign, { offset: [0, -12], direction: 'top' });
+    }
   }
 
 }
