@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { tileLayer, latLng, Map } from 'leaflet';
 import * as L from 'leaflet';
-import 'leaflet-rotatedmarker';
 import { VatsimService } from '../vatsim.service';
 import { Client } from '../models/client';
 import { Pilot } from '../models/pilot';
