@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 
-import { AircraftIconService } from './aircraft-icon.service';
+import { MarkerService } from './marker.service';
 
-describe('AircraftIconService', () => {
+describe('MarkerService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: AircraftIconService = TestBed.get(AircraftIconService);
+    const service: MarkerService = TestBed.get(MarkerService);
     expect(service).toBeTruthy();
   });
 });

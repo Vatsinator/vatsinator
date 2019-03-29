@@ -15,7 +15,7 @@ interface VatsimData {
 export class VatsimService {
 
   private clientsSource = new BehaviorSubject<Client[]>([]);
-  public readonly clients = this.clientsSource.asObservable();
+  readonly clients = this.clientsSource.asObservable();
 
   constructor(
     private http: HttpClient,

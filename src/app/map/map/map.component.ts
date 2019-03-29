@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { tileLayer, latLng, Map } from 'leaflet';
 import * as L from 'leaflet';
 import 'leaflet-rotatedmarker';
-import { AircraftIconService } from '../aircraft-icon.service';
 import { VatsimService } from '../vatsim.service';
 import { Client } from '../models/client';
 import { Pilot } from '../models/pilot';
-import { map, filter } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
+import { Atc } from '../models/atc';
+import { MarkerService } from '../marker.service';
 
 @Component({
   selector: 'app-map',
@@ -31,13 +32,12 @@ export class MapComponent {
   };
 
   constructor(
-    private aircraftIconService: AircraftIconService,
     private vatsimService: VatsimService,
+    private markerService: MarkerService,
   ) { }
 
   onMapReady(theMap: Map) {
     this.vatsimService.clients.pipe(
-      map(clients => clients.filter(c => c.type === 'pilot')),
       map(clients => clients.map(c => this.createMarker(c))),
     ).subscribe(markers => markers.forEach(marker => marker.addTo(theMap)));
   }
@@ -45,13 +45,14 @@ export class MapComponent {
   private createMarker(client: Client): L.Marker<any> {
     if (client.type === 'pilot') {
       const pilot = client as Pilot;
-      return L.marker(latLng(pilot.position.latitude, pilot.position.longitude), {
-        icon: this.aircraftIconService.forIcao(pilot.aircraft),
-        rotationAngle: pilot.heading,
-        rotationOrigin: 'center center',
-        riseOnHover: true,
-      })
-      .bindTooltip(pilot.callsign, { offset: [0, -12], direction: 'top' });
+      return this.markerService
+        .aircraft(latLng(pilot.position.latitude, pilot.position.longitude), pilot.heading, pilot.aircraft)
+        .bindTooltip(pilot.callsign, { direction: 'top' });
+    } else if (client.type === 'atc') {
+      const atc = client as Atc;
+      return this.markerService
+        .atc(latLng(atc.position.latitude, atc.position.longitude))
+        .bindTooltip(atc.callsign, { direction: 'top' });
     }
   }
 
