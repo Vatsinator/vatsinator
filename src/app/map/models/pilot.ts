@@ -5,4 +5,5 @@ export interface Pilot extends Client {
   heading: number;
   from: string;
   to: string;
+  groundSpeed: number;
 }

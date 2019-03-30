@@ -67,4 +67,13 @@ export class MarkerService {
     });
   }
 
+  airport(position: L.LatLng) {
+    return L.circleMarker(position, {
+      radius: 5,
+      color: '#ff0000',
+      fill: true,
+      fillOpacity: 1,
+    });
+  }
+
 }

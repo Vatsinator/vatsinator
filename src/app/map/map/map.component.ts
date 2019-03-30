@@ -37,7 +37,13 @@ export class MapComponent {
 
   onMapReady(theMap: Map) {
     this.vatsimService.clients.pipe(
+      map(clients => clients.filter(c => c.type === 'pilot')),
+      map(clients => clients.filter(c => (c as Pilot).groundSpeed > 50)),
       map(clients => clients.map(c => this.createMarker(c))),
+    ).subscribe(markers => markers.filter(m => !!m).forEach(marker => marker.addTo(theMap)));
+
+    this.vatsimService.airports.pipe(
+      map(airports => airports.map(a => this.markerService.airport(latLng(a.lat, a.lon)).bindTooltip(a.icao, { direction: 'top' }))),
     ).subscribe(markers => markers.forEach(marker => marker.addTo(theMap)));
   }
 
@@ -47,11 +53,6 @@ export class MapComponent {
       return this.markerService
         .aircraft(latLng(pilot.position.latitude, pilot.position.longitude), pilot.heading, pilot.aircraft)
         .bindTooltip(pilot.callsign, { direction: 'top' });
-    } else if (client.type === 'atc') {
-      const atc = client as Atc;
-      return this.markerService
-        .atc(latLng(atc.position.latitude, atc.position.longitude))
-        .bindTooltip(atc.callsign, { direction: 'top' });
     }
   }
 
