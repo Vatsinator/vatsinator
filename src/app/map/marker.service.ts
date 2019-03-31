@@ -14,12 +14,6 @@ interface AircraftIcon {
 })
 export class MarkerService {
 
-  private atcIcon = L.icon({
-    iconUrl: '/assets/atc.png',
-    iconSize: [24, 24],
-    tooltipAnchor: [0, -12],
-  });
-
   private aircraftIcons: AircraftIcon[] = [
     {
       model: 'A320',
@@ -49,14 +43,6 @@ export class MarkerService {
   ];
 
   private default = this.aircraftIcons.find(a => a.model === 'B737');
-
-  atc(position: L.LatLng): L.Marker {
-    return L.marker(position, {
-      icon: this.atcIcon,
-      riseOnHover: true,
-      zIndexOffset: 10,
-    });
-  }
 
   aircraft(position: L.LatLng, heading: number, aircraft: string): L.Marker {
     return L.marker(position, {
