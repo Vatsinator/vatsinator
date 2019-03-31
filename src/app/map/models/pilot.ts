@@ -6,4 +6,5 @@ export interface Pilot extends Client {
   from: string;
   to: string;
   groundSpeed: number;
+  flightPhase: 'departing' | 'airborne' | 'arrived';
 }

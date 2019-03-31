@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as L from 'leaflet';
 import 'leaflet-rotatedmarker';
+import { Airport } from './models/airport';
 
 interface AircraftIcon {
   model: string;
@@ -67,12 +68,15 @@ export class MarkerService {
     });
   }
 
-  airport(position: L.LatLng) {
-    return L.circleMarker(position, {
+  airport(airport: Airport) {
+    return L.circleMarker(L.latLng(airport.lat, airport.lon), {
       radius: 5,
       color: '#ff0000',
       fill: true,
       fillOpacity: 1,
+    }).bindTooltip(airport.icao, {
+      direction: 'top',
+      offset: [0, -10],
     });
   }
 

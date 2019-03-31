@@ -38,12 +38,12 @@ export class MapComponent {
   onMapReady(theMap: Map) {
     this.vatsimService.clients.pipe(
       map(clients => clients.filter(c => c.type === 'pilot')),
-      map(clients => clients.filter(c => (c as Pilot).groundSpeed > 50)),
+      map(clients => clients.filter(c => (c as Pilot).flightPhase === 'airborne')),
       map(clients => clients.map(c => this.createMarker(c))),
     ).subscribe(markers => markers.filter(m => !!m).forEach(marker => marker.addTo(theMap)));
 
     this.vatsimService.airports.pipe(
-      map(airports => airports.map(a => this.markerService.airport(latLng(a.lat, a.lon)).bindTooltip(a.icao, { direction: 'top' }))),
+      map(airports => airports.map(a => this.markerService.airport(a))),
     ).subscribe(markers => markers.forEach(marker => marker.addTo(theMap)));
   }
 
