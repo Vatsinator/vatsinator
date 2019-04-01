@@ -3,11 +3,12 @@ import * as L from 'leaflet';
 import 'leaflet-rotatedmarker';
 import { Airport } from './models/airport';
 import { Pilot } from './models/pilot';
+import { Marker, latLng, circleMarker, marker, Icon } from 'leaflet';
 
 interface AircraftIcon {
   model: string;
   match: RegExp;
-  icon: L.Icon;
+  icon: Icon;
 }
 
 @Injectable({
@@ -45,8 +46,8 @@ export class MarkerService {
 
   private default = this.aircraftIcons.find(a => a.model === 'B737');
 
-  aircraft(pilot: Pilot): L.Marker {
-    return L.marker(L.latLng(pilot.position.latitude, pilot.position.longitude), {
+  aircraft(pilot: Pilot): Marker {
+    return marker(latLng(pilot.position.latitude, pilot.position.longitude), {
       icon: (this.aircraftIcons.find(a => pilot.aircraft.search(a.match) >= 0) || this.default).icon,
       rotationAngle: pilot.heading,
       rotationOrigin: 'center center',
@@ -57,7 +58,7 @@ export class MarkerService {
   }
 
   airport(airport: Airport) {
-    return L.circleMarker(L.latLng(airport.lat, airport.lon), {
+    return circleMarker(latLng(airport.lat, airport.lon), {
       radius: 5,
       color: '#ff0000',
       fill: true,
