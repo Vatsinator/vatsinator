@@ -9,5 +9,8 @@ export interface Airport {
   lat: number;
   lon: number;
   tz: string;
+
+  inboundFlights: string[];
+  outboundFlights: string[];
 }
 

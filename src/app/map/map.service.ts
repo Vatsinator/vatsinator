@@ -1,38 +1,59 @@
 import { Injectable } from '@angular/core';
 import { VatsimService } from './vatsim.service';
-import { tileLayer, latLng, MapOptions, layerGroup, Map, polyline } from 'leaflet';
+import { tileLayer, latLng, MapOptions, layerGroup, Map, polyline, Polyline, LatLng } from 'leaflet';
 import { MarkerService } from './marker.service';
 import { Pilot } from './models/pilot';
 import { map } from 'rxjs/operators';
 import { Airport } from './models/airport';
 import { Subject, combineLatest, fromEvent } from 'rxjs';
+import { Client } from './models/client';
 
-function generateFlightLines(flight: Pilot, airports: Airport[]) {
+/** Create a solid line */
+function makeOutboundLine(points: LatLng[]) {
+  return polyline(points, { color: '#0374a4', weight: 2 });
+}
+
+/** Create dashed line */
+function makeInboundLine(points: LatLng[]) {
+  return polyline(points, { color: '#85a4a4', weight: 2, dashArray: [10, 8] });
+}
+
+function generateFlightLines(flight: Pilot, airports: Airport[]): Polyline[] {
   const lines = [];
 
   const dep = airports.find(ap => ap.icao === flight.from);
   if (dep) {
     // const points: L.LatLngTuple[] = [[ dep.lat, dep.lon ], [ pilot.position.latitude, pilot.position.longitude ]];
     const points = [latLng(dep.lat, dep.lon), latLng(flight.position.latitude, flight.position.longitude)];
-    const line = polyline(points, {
-      color: '#0374a4',
-      weight: 2,
-    });
-    lines.push(line);
+    lines.push(makeOutboundLine(points));
   }
 
   const arr = airports.find(ap => ap.icao === flight.to);
   if (arr) {
     const points = [latLng(arr.lat, arr.lon), latLng(flight.position.latitude, flight.position.longitude)];
-    const line = polyline(points, {
-      color: '#85a4a4',
-      weight: 2,
-      dashArray: [10, 8],
-    });
-    lines.push(line);
+    lines.push(makeInboundLine(points));
   }
 
   return lines;
+}
+
+function generateAirportLines(airport: Airport, clients: Client[]): Polyline[] {
+  return [
+    ...airport.inboundFlights.map(callsign => {
+      const flight = clients.find(f => f.callsign === callsign);
+      if (flight) {
+        const points = [latLng(airport.lat, airport.lon), latLng(flight.position.latitude, flight.position.longitude)];
+        return makeInboundLine(points);
+      }
+    }),
+    ...airport.outboundFlights.map(callsign => {
+      const flight = clients.find(f => f.callsign === callsign);
+      if (flight) {
+        const points = [latLng(airport.lat, airport.lon), latLng(flight.position.latitude, flight.position.longitude)];
+        return makeOutboundLine(points);
+      }
+    }),
+  ];
 }
 
 @Injectable({
@@ -60,6 +81,7 @@ export class MapService {
   private lines = layerGroup([], { pane: 'lines' });
 
   private flightLines = new Subject<Pilot>();
+  private airportLines = new Subject<Airport>();
 
   constructor(
     private vatsimService: VatsimService,
@@ -73,7 +95,11 @@ export class MapService {
     ).subscribe(flights => flights.forEach((f: Pilot) => this.addFlight(f)));
 
     combineLatest(this.flightLines, this.vatsimService.airports).pipe(
-      map(([flight, airports]) => generateFlightLines(flight, airports))
+      map(([flight, airports]) => generateFlightLines(flight, airports)),
+    ).subscribe(lines => lines.forEach(line => line.addTo(this.lines)));
+
+    combineLatest(this.airportLines, this.vatsimService.clients).pipe(
+      map(([airport, clients]) => generateAirportLines(airport, clients)),
     ).subscribe(lines => lines.forEach(line => line.addTo(this.lines)));
   }
 
@@ -88,7 +114,6 @@ export class MapService {
     this.lines.addTo(theMap);
   }
 
-  /** Adds flight marker */
   addFlight(pilot: Pilot) {
     const marker = this.markerService.aircraft(pilot);
     fromEvent(marker, 'mouseover').subscribe(() => this.showFlightLines(pilot));
@@ -96,14 +121,19 @@ export class MapService {
     marker.addTo(this.flights);
   }
 
-  /** Shows flight lines */
   showFlightLines(pilot: Pilot) {
     this.flightLines.next(pilot);
   }
 
-  /** Adds airport marker */
   addAirport(airport: Airport) {
-    this.markerService.airport(airport).addTo(this.airports);
+    const marker = this.markerService.airport(airport);
+    fromEvent(marker, 'mouseover').subscribe(() => this.showAirportLines(airport));
+    fromEvent(marker, 'mouseout').subscribe(() => this.clearLines());
+    marker.addTo(this.airports);
+  }
+
+  showAirportLines(airport: Airport) {
+    this.airportLines.next(airport);
   }
 
   /** Clear all lines */
