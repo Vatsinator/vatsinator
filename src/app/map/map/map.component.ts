@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { tileLayer, latLng, Map } from 'leaflet';
 import * as L from 'leaflet';
 import { VatsimService } from '../vatsim.service';
-import { Client } from '../models/client';
 import { Pilot } from '../models/pilot';
 import { map, switchMap } from 'rxjs/operators';
 import { MarkerService } from '../marker.service';
@@ -41,8 +40,8 @@ export class MapComponent {
   onMapReady(theMap: Map) {
     this.vatsimService.clients.pipe(
       map(clients => clients.filter(c => c.type === 'pilot')),
-      map(clients => clients.filter(c => (c as Pilot).flightPhase === 'airborne')),
-      map(clients => clients.map(c => this.createMarker(c))),
+      map(clients => clients.filter((c: Pilot) => c.flightPhase === 'airborne')),
+      map(clients => clients.map((c: Pilot) => this.createMarker(c))),
     ).subscribe(markers => markers.filter(m => !!m).forEach(marker => marker.addTo(theMap)));
 
     this.vatsimService.airports.pipe(
@@ -55,40 +54,37 @@ export class MapComponent {
     layer.addTo(theMap);
   }
 
-  private createMarker(client: Client): L.Marker<any> {
-    if (client.type === 'pilot') {
-      const pilot = client as Pilot;
-      const marker = this.markerService.aircraft(pilot);
+  private createMarker(pilot: Pilot): L.Marker<any> {
+    const marker = this.markerService.aircraft(pilot);
 
-      fromEvent(marker, 'mouseover').pipe(
-        switchMap(() => this.vatsimService.airports),
-      ).subscribe(airports => {
-        const dep = airports.find(ap => ap.icao === pilot.from);
-        if (dep) {
-          const points: L.LatLngTuple[] = [[ dep.lat, dep.lon ], [ pilot.position.latitude, pilot.position.longitude ]];
-          const line = L.polyline(points, {
-            color: '#0374a4',
-            weight: 2,
-          });
-          this.lines.next(line);
-        }
+    fromEvent(marker, 'mouseover').pipe(
+      switchMap(() => this.vatsimService.airports),
+    ).subscribe(airports => {
+      const dep = airports.find(ap => ap.icao === pilot.from);
+      if (dep) {
+        const points: L.LatLngTuple[] = [[ dep.lat, dep.lon ], [ pilot.position.latitude, pilot.position.longitude ]];
+        const line = L.polyline(points, {
+          color: '#0374a4',
+          weight: 2,
+        });
+        this.lines.next(line);
+      }
 
-        const arr = airports.find(ap => ap.icao === pilot.to);
-        if (arr) {
-          const points: L.LatLngTuple[] = [[ arr.lat, arr.lon ], [ pilot.position.latitude, pilot.position.longitude ]];
-          const line = L.polyline(points, {
-            color: '#85a4a4',
-            weight: 2,
-            dashArray: [10, 8],
-          });
-          this.lines.next(line);
-        }
-      });
+      const arr = airports.find(ap => ap.icao === pilot.to);
+      if (arr) {
+        const points: L.LatLngTuple[] = [[ arr.lat, arr.lon ], [ pilot.position.latitude, pilot.position.longitude ]];
+        const line = L.polyline(points, {
+          color: '#85a4a4',
+          weight: 2,
+          dashArray: [10, 8],
+        });
+        this.lines.next(line);
+      }
+    });
 
-      fromEvent(marker, 'mouseout').subscribe(() => this.clearLines.next());
+    fromEvent(marker, 'mouseout').subscribe(() => this.clearLines.next());
 
-      return marker;
-    }
+    return marker;
   }
 
 }
