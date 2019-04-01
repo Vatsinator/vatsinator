@@ -4,9 +4,9 @@ import * as L from 'leaflet';
 import { VatsimService } from '../vatsim.service';
 import { Client } from '../models/client';
 import { Pilot } from '../models/pilot';
-import { map } from 'rxjs/operators';
-import { Atc } from '../models/atc';
+import { map, switchMap } from 'rxjs/operators';
 import { MarkerService } from '../marker.service';
+import { fromEvent, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-map',
@@ -30,6 +30,9 @@ export class MapComponent {
     preferCanvas: true,
   };
 
+  private lines = new Subject<L.Layer>();
+  private clearLines = new Subject<void>();
+
   constructor(
     private vatsimService: VatsimService,
     private markerService: MarkerService,
@@ -45,14 +48,46 @@ export class MapComponent {
     this.vatsimService.airports.pipe(
       map(airports => airports.map(a => this.markerService.airport(a))),
     ).subscribe(markers => markers.forEach(marker => marker.addTo(theMap)));
+
+    const layer = L.layerGroup();
+    this.lines.subscribe(l => l.addTo(layer));
+    this.clearLines.subscribe(() => layer.clearLayers());
+    layer.addTo(theMap);
   }
 
   private createMarker(client: Client): L.Marker<any> {
     if (client.type === 'pilot') {
       const pilot = client as Pilot;
-      return this.markerService
-        .aircraft(latLng(pilot.position.latitude, pilot.position.longitude), pilot.heading, pilot.aircraft)
-        .bindTooltip(pilot.callsign, { direction: 'top' });
+      const marker = this.markerService.aircraft(pilot);
+
+      fromEvent(marker, 'mouseover').pipe(
+        switchMap(() => this.vatsimService.airports),
+      ).subscribe(airports => {
+        const dep = airports.find(ap => ap.icao === pilot.from);
+        if (dep) {
+          const points: L.LatLngTuple[] = [[ dep.lat, dep.lon ], [ pilot.position.latitude, pilot.position.longitude ]];
+          const line = L.polyline(points, {
+            color: '#0374a4',
+            weight: 2,
+          });
+          this.lines.next(line);
+        }
+
+        const arr = airports.find(ap => ap.icao === pilot.to);
+        if (arr) {
+          const points: L.LatLngTuple[] = [[ arr.lat, arr.lon ], [ pilot.position.latitude, pilot.position.longitude ]];
+          const line = L.polyline(points, {
+            color: '#85a4a4',
+            weight: 2,
+            dashArray: [10, 8],
+          });
+          this.lines.next(line);
+        }
+      });
+
+      fromEvent(marker, 'mouseout').subscribe(() => this.clearLines.next());
+
+      return marker;
     }
   }
 

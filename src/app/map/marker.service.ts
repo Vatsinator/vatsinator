@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import * as L from 'leaflet';
 import 'leaflet-rotatedmarker';
 import { Airport } from './models/airport';
+import { Pilot } from './models/pilot';
 
 interface AircraftIcon {
   model: string;
@@ -44,14 +45,15 @@ export class MarkerService {
 
   private default = this.aircraftIcons.find(a => a.model === 'B737');
 
-  aircraft(position: L.LatLng, heading: number, aircraft: string): L.Marker {
-    return L.marker(position, {
-      icon: (this.aircraftIcons.find(a => aircraft.search(a.match) >= 0) || this.default).icon,
-      rotationAngle: heading,
+  aircraft(pilot: Pilot): L.Marker {
+    return L.marker(L.latLng(pilot.position.latitude, pilot.position.longitude), {
+      icon: (this.aircraftIcons.find(a => pilot.aircraft.search(a.match) >= 0) || this.default).icon,
+      rotationAngle: pilot.heading,
       rotationOrigin: 'center center',
       riseOnHover: true,
       zIndexOffset: 20,
-    });
+    })
+    .bindTooltip(pilot.callsign, { direction: 'top' });
   }
 
   airport(airport: Airport) {
