@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { VatsimService } from './vatsim.service';
-import { tileLayer, latLng, MapOptions, layerGroup, Map, polyline, Polyline, LatLng } from 'leaflet';
+import { latLng, layerGroup, Map, polyline, Polyline, LatLng } from 'leaflet';
 import { MarkerService } from './marker.service';
 import { Pilot } from './models/pilot';
-import { map, tap } from 'rxjs/operators';
+import { map, tap, withLatestFrom } from 'rxjs/operators';
 import { Airport } from './models/airport';
-import { Subject, combineLatest, fromEvent } from 'rxjs';
+import { Subject, fromEvent } from 'rxjs';
 import { Client } from './models/client';
 
 /** Create a solid line */
@@ -82,11 +82,13 @@ export class MapService {
       tap(() => this.flights.clearLayers()),
     ).subscribe(flights => flights.forEach((f: Pilot) => this.addFlight(f)));
 
-    combineLatest(this.flightLines, this.vatsimService.airports).pipe(
+    this.flightLines.pipe(
+      withLatestFrom(this.vatsimService.airports),
       map(([flight, airports]) => generateFlightLines(flight, airports)),
     ).subscribe(lines => lines.forEach(line => line.addTo(this.lines)));
 
-    combineLatest(this.airportLines, this.vatsimService.clients).pipe(
+    this.airportLines.pipe(
+      withLatestFrom(this.vatsimService.clients),
       map(([airport, clients]) => generateAirportLines(airport, clients)),
     ).subscribe(lines => lines.forEach(line => line.addTo(this.lines)));
   }
