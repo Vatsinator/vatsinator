@@ -61,21 +61,6 @@ function generateAirportLines(airport: Airport, clients: Client[]): Polyline[] {
 })
 export class MapService {
 
-  readonly mapOptions: MapOptions = {
-    layers: [
-      tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        // tslint:disable-next-line:max-line-length
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: 'abcd',
-        maxZoom: 19,
-      }),
-    ],
-    zoom: 3,
-    center: latLng(0, 0),
-    maxBounds: [[-90, -180], [90, 180]],
-    preferCanvas: true,
-  };
-
   private airports = layerGroup([], { pane: 'airpoprts' });
   private flights = layerGroup([], { pane: 'flights' });
   private lines = layerGroup([], { pane: 'lines' });
