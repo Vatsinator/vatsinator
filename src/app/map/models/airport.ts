@@ -12,5 +12,6 @@ export interface Airport {
 
   inboundFlights: string[];
   outboundFlights: string[];
+  atcs: string[];
 }
 

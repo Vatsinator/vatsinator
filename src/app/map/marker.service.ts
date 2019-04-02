@@ -46,6 +46,7 @@ export class MarkerService {
 
   private default = this.aircraftIcons.find(a => a.model === 'B737');
   private airportIcon = L.icon({ iconUrl: '/assets/airport.png', iconSize: [20, 20], tooltipAnchor: [0, -10] });
+  private airportIconAtc = L.icon({ iconUrl: '/assets/airport_atc.png', iconSize: [20, 20], tooltipAnchor: [0, -10] });
 
   aircraft(pilot: Pilot): Marker {
     return marker(latLng(pilot.position.latitude, pilot.position.longitude), {
@@ -59,7 +60,7 @@ export class MarkerService {
 
   airport(airport: Airport) {
     return marker(latLng(airport.lat, airport.lon), {
-      icon: this.airportIcon,
+      icon: airport.atcs.length > 0 ? this.airportIconAtc : this.airportIcon,
       riseOnHover: true,
     }).bindTooltip(airport.icao, {
       direction: 'top',
