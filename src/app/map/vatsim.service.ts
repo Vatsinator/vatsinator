@@ -37,10 +37,17 @@ export class VatsimService {
     private http: HttpClient,
     @Inject(API_URL) private apiUrl: string,
   ) {
+   this.refresh();
+  }
+
+  refresh() {
     this.http.get<VatsimData>(`${this.apiUrl}/vatsim/data`).subscribe(data => {
       this.generalSource.next(data.general);
       this.clientsSource.next(data.clients);
       this.airportsSource.next(data.activeAirports);
+
+      console.log(`Next update in ${data.general.reload} minutes`);
+      setTimeout(() => this.refresh(), data.general.reload * 60 * 1000);
     });
   }
 

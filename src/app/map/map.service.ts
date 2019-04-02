@@ -3,7 +3,7 @@ import { VatsimService } from './vatsim.service';
 import { tileLayer, latLng, MapOptions, layerGroup, Map, polyline, Polyline, LatLng } from 'leaflet';
 import { MarkerService } from './marker.service';
 import { Pilot } from './models/pilot';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { Airport } from './models/airport';
 import { Subject, combineLatest, fromEvent } from 'rxjs';
 import { Client } from './models/client';
@@ -61,7 +61,7 @@ function generateAirportLines(airport: Airport, clients: Client[]): Polyline[] {
 })
 export class MapService {
 
-  private airports = layerGroup([], { pane: 'airpoprts' });
+  private airports = layerGroup([], { pane: 'airports' });
   private flights = layerGroup([], { pane: 'flights' });
   private lines = layerGroup([], { pane: 'lines' });
 
@@ -72,11 +72,14 @@ export class MapService {
     private vatsimService: VatsimService,
     private markerService: MarkerService,
   ) {
-    this.vatsimService.airports.subscribe(airports => airports.forEach(ap => this.addAirport(ap)));
+    this.vatsimService.airports.pipe(
+      tap(() => this.airports.clearLayers()),
+    ).subscribe(airports => airports.forEach(ap => this.addAirport(ap)));
 
     this.vatsimService.clients.pipe(
       map(clients => clients.filter(c => c.type === 'pilot')),
       map(flights => flights.filter((f: Pilot) => f.flightPhase === 'airborne')),
+      tap(() => this.flights.clearLayers()),
     ).subscribe(flights => flights.forEach((f: Pilot) => this.addFlight(f)));
 
     combineLatest(this.flightLines, this.vatsimService.airports).pipe(
@@ -103,7 +106,7 @@ export class MapService {
     const marker = this.markerService.aircraft(pilot);
     fromEvent(marker, 'mouseover').subscribe(() => this.showFlightLines(pilot));
     fromEvent(marker, 'mouseout').subscribe(() => this.clearLines());
-    marker.addTo(this.flights);
+      marker.addTo(this.flights);
   }
 
   showFlightLines(pilot: Pilot) {
