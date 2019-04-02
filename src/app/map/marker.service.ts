@@ -3,7 +3,7 @@ import * as L from 'leaflet';
 import 'leaflet-rotatedmarker';
 import { Airport } from './models/airport';
 import { Pilot } from './models/pilot';
-import { Marker, latLng, circleMarker, marker, Icon } from 'leaflet';
+import { Marker, latLng, marker, Icon } from 'leaflet';
 
 interface AircraftIcon {
   model: string;
@@ -45,6 +45,7 @@ export class MarkerService {
   ];
 
   private default = this.aircraftIcons.find(a => a.model === 'B737');
+  private airportIcon = L.icon({ iconUrl: '/assets/airport.png', iconSize: [20, 20], tooltipAnchor: [0, -10] });
 
   aircraft(pilot: Pilot): Marker {
     return marker(latLng(pilot.position.latitude, pilot.position.longitude), {
@@ -52,17 +53,14 @@ export class MarkerService {
       rotationAngle: pilot.heading,
       rotationOrigin: 'center center',
       riseOnHover: true,
-      zIndexOffset: 20,
     })
     .bindTooltip(pilot.callsign, { direction: 'top' });
   }
 
   airport(airport: Airport) {
-    return circleMarker(latLng(airport.lat, airport.lon), {
-      radius: 5,
-      color: '#ff0000',
-      fill: true,
-      fillOpacity: 1,
+    return marker(latLng(airport.lat, airport.lon), {
+      icon: this.airportIcon,
+      riseOnHover: true,
     }).bindTooltip(airport.icao, {
       direction: 'top',
       offset: [0, -10],
