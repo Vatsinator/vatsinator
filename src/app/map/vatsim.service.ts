@@ -5,8 +5,16 @@ import { Client } from './models/client';
 import { HttpClient } from '@angular/common/http';
 import { Airport } from './models/airport';
 
-interface VatsimData {
+interface VatsimDataGeneral {
+  version: number;
+  reload: number;
+  update: Date;
+  atisAllowMin: number;
   connectedClients: number;
+}
+
+interface VatsimData {
+  general: VatsimDataGeneral;
   clients: Client[];
   activeAirports: Airport[];
 }
@@ -16,7 +24,10 @@ interface VatsimData {
 })
 export class VatsimService {
 
-  private clientsSource = new BehaviorSubject<Client[]>([]);
+  private generalSource = new ReplaySubject<VatsimDataGeneral>(1);
+  readonly general = this.generalSource.asObservable();
+
+  private clientsSource = new ReplaySubject<Client[]>(1);
   readonly clients = this.clientsSource.asObservable();
 
   private airportsSource = new ReplaySubject<Airport[]>(1);
@@ -27,6 +38,7 @@ export class VatsimService {
     @Inject(API_URL) private apiUrl: string,
   ) {
     this.http.get<VatsimData>(`${this.apiUrl}/vatsim/data`).subscribe(data => {
+      this.generalSource.next(data.general);
       this.clientsSource.next(data.clients);
       this.airportsSource.next(data.activeAirports);
     });
