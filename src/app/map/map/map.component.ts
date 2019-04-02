@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
-import { Map, MapOptions, tileLayer, latLng } from 'leaflet';
+import { Map, MapOptions, tileLayer, LeafletEvent } from 'leaflet';
 import { MapService } from '../map.service';
+import { MapViewService } from '../map-view.service';
 
 @Component({
   selector: 'app-map',
@@ -9,7 +10,7 @@ import { MapService } from '../map.service';
 })
 export class MapComponent {
 
-  readonly options: MapOptions = {
+  options: MapOptions = {
     layers: [
       tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
         // tslint:disable-next-line:max-line-length
@@ -18,18 +19,30 @@ export class MapComponent {
         maxZoom: 19,
       }),
     ],
-    zoom: 3,
-    center: latLng(0, 0),
-    maxBounds: [[-90, -180], [90, 180]],
+    zoom: this.mapViewService.zoom,
+    center: this.mapViewService.center,
     preferCanvas: true,
   };
 
   constructor(
     private mapService: MapService,
+    private mapViewService: MapViewService,
   ) { }
 
   onMapReady(theMap: Map) {
     this.mapService.addMap(theMap);
+  }
+
+  onMoveEnd(event: LeafletEvent) {
+    const map = event.target as Map;
+    this.mapViewService.center = map.getCenter();
+    this.mapViewService.save();
+  }
+
+  onZoomEnd(event: LeafletEvent) {
+    const map = event.target as Map;
+    this.mapViewService.zoom = map.getZoom();
+    this.mapViewService.save();
   }
 
 }
