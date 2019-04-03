@@ -1,6 +1,11 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { VatsimStatusComponent } from './vatsim-status.component';
+import { of } from 'rxjs';
+import { VatsimService } from '../vatsim.service';
+
+class VatsimServiceStub {
+  general = of({ update: new Date() });
+}
 
 describe('VatsimStatusComponent', () => {
   let component: VatsimStatusComponent;
@@ -8,7 +13,10 @@ describe('VatsimStatusComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ VatsimStatusComponent ]
+      declarations: [ VatsimStatusComponent ],
+      providers: [
+        { provide: VatsimService, useClass: VatsimServiceStub },
+      ]
     })
     .compileComponents();
   }));
