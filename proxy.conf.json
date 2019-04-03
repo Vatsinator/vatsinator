@@ -1,6 +1,6 @@
 {
   "/api": {
-    "target": "http://localhost:3000",
+    "target": "https://vathub.vatsinator.eu.org",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true,
