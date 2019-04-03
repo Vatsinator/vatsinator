@@ -108,7 +108,7 @@ export class MapService {
     const marker = this.markerService.aircraft(pilot);
     fromEvent(marker, 'mouseover').subscribe(() => this.showFlightLines(pilot));
     fromEvent(marker, 'mouseout').subscribe(() => this.clearLines());
-      marker.addTo(this.flights);
+    marker.addTo(this.flights);
   }
 
   showFlightLines(pilot: Pilot) {
