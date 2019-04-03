@@ -1,0 +1,16 @@
+language: node_js
+node_js:
+ - node
+dist: trusty
+sudo: true
+addons:
+  chrome: stable
+
+before_script:
+ - npm install -g @angular/cli codecov
+
+script:
+ - npm run test:ci
+
+after_success:
+- codecov
