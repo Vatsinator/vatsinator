@@ -106,8 +106,8 @@ export class MapService {
 
   addFlight(pilot: Pilot) {
     const marker = this.markerService.aircraft(pilot);
-    fromEvent(marker, 'mouseover').subscribe(() => this.showFlightLines(pilot));
-    fromEvent(marker, 'mouseout').subscribe(() => this.clearLines());
+    fromEvent(marker, 'tooltipopen').subscribe(() => this.showFlightLines(pilot));
+    fromEvent(marker, 'tooltipclose').subscribe(() => this.clearLines());
     marker.addTo(this.flights);
   }
 
@@ -117,8 +117,8 @@ export class MapService {
 
   addAirport(airport: Airport) {
     const marker = this.markerService.airport(airport);
-    fromEvent(marker, 'mouseover').subscribe(() => this.showAirportLines(airport));
-    fromEvent(marker, 'mouseout').subscribe(() => this.clearLines());
+    fromEvent(marker, 'tooltipopen').subscribe(() => this.showAirportLines(airport));
+    fromEvent(marker, 'tooltipclose').subscribe(() => this.clearLines());
     marker.addTo(this.airports);
   }
 
