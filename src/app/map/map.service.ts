@@ -24,13 +24,13 @@ function generateFlightLines(flight: Pilot, airports: Airport[]): Polyline[] {
   const dep = airports.find(ap => ap.icao === flight.from);
   if (dep) {
     // const points: L.LatLngTuple[] = [[ dep.lat, dep.lon ], [ pilot.position.latitude, pilot.position.longitude ]];
-    const points = [latLng(dep.lat, dep.lon), latLng(flight.position.latitude, flight.position.longitude)];
+    const points = [latLng(dep.lat, dep.lon), latLng(flight.position)];
     lines.push(makeOutboundLine(points));
   }
 
   const arr = airports.find(ap => ap.icao === flight.to);
   if (arr) {
-    const points = [latLng(arr.lat, arr.lon), latLng(flight.position.latitude, flight.position.longitude)];
+    const points = [latLng(arr.lat, arr.lon), latLng(flight.position)];
     lines.push(makeInboundLine(points));
   }
 
@@ -42,14 +42,14 @@ function generateAirportLines(airport: Airport, clients: Client[]): Polyline[] {
     ...airport.inboundFlights.map(callsign => {
       const flight = clients.find(f => f.callsign === callsign);
       if (flight) {
-        const points = [latLng(airport.lat, airport.lon), latLng(flight.position.latitude, flight.position.longitude)];
+        const points = [latLng(airport.lat, airport.lon), latLng(flight.position)];
         return makeInboundLine(points);
       }
     }),
     ...airport.outboundFlights.map(callsign => {
       const flight = clients.find(f => f.callsign === callsign);
       if (flight) {
-        const points = [latLng(airport.lat, airport.lon), latLng(flight.position.latitude, flight.position.longitude)];
+        const points = [latLng(airport.lat, airport.lon), latLng(flight.position)];
         return makeOutboundLine(points);
       }
     }),

@@ -54,7 +54,7 @@ export class MarkerService {
   private airportIconAtc = L.icon({ iconUrl: '/assets/airport_atc.png', iconSize: [20, 20], tooltipAnchor: [0, -10] });
 
   aircraft(pilot: Pilot): Marker {
-    return marker(latLng(pilot.position.latitude, pilot.position.longitude), {
+    return marker(pilot.position, {
       icon: (this.aircraftIcons.find(a => pilot.aircraft.search(a.match) >= 0) || this.default).icon,
       rotationAngle: pilot.heading,
       rotationOrigin: 'center center',

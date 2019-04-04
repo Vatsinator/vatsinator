@@ -5,5 +5,5 @@ export interface Client {
   cid: number;
   name: string;
   type: ClientType;
-  position: { longitude: number; latitude: number; };
+  position: [number, number];
 }
