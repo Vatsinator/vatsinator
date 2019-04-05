@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { VatsimService } from './vatsim.service';
-import { latLng, layerGroup, Map, polyline, Polyline, LatLng } from 'leaflet';
+import { latLng, layerGroup, Map, polyline, Polyline, LatLng, polygon } from 'leaflet';
 import { MarkerService } from './marker.service';
 import { Pilot } from './models/pilot';
 import { map, tap, withLatestFrom } from 'rxjs/operators';
 import { Airport } from './models/airport';
 import { Subject, fromEvent } from 'rxjs';
 import { Client } from './models/client';
+import { Fir } from '../vatsim/models/fir';
 
 /** Create a solid line */
 function makeOutboundLine(points: LatLng[]) {
@@ -61,6 +62,7 @@ function generateAirportLines(airport: Airport, clients: Client[]): Polyline[] {
 })
 export class MapService {
 
+  private firs = layerGroup([], { pane: 'firs' });
   private airports = layerGroup([], { pane: 'airports' });
   private flights = layerGroup([], { pane: 'flights' });
   private lines = layerGroup([], { pane: 'lines' });
@@ -82,6 +84,10 @@ export class MapService {
       tap(() => this.flights.clearLayers()),
     ).subscribe(flights => flights.forEach((f: Pilot) => this.addFlight(f)));
 
+    this.vatsimService.firs.pipe(
+      tap(() => this.firs.clearLayers()),
+    ).subscribe(firs => firs.forEach(fir => this.addFir(fir)));
+
     this.flightLines.pipe(
       withLatestFrom(this.vatsimService.airports),
       map(([flight, airports]) => generateFlightLines(flight, airports)),
@@ -95,20 +101,22 @@ export class MapService {
 
   addMap(theMap: Map) {
     // https://leafletjs.com/reference-1.4.0.html#map-pane
-    theMap.createPane('lines').style.zIndex = '510';
-    theMap.createPane('airports').style.zIndex = '520';
-    theMap.createPane('flights').style.zIndex = '530';
+    theMap.createPane('firs').style.zIndex = '510';
+    theMap.createPane('lines').style.zIndex = '520';
+    theMap.createPane('airports').style.zIndex = '530';
+    theMap.createPane('flights').style.zIndex = '540';
 
+    this.firs.addTo(theMap);
     this.airports.addTo(theMap);
     this.flights.addTo(theMap);
     this.lines.addTo(theMap);
   }
 
   addFlight(pilot: Pilot) {
-    const marker = this.markerService.aircraft(pilot);
-    fromEvent(marker, 'tooltipopen').subscribe(() => this.showFlightLines(pilot));
-    fromEvent(marker, 'tooltipclose').subscribe(() => this.clearLines());
-    marker.addTo(this.flights);
+    const aircraftMarker = this.markerService.aircraft(pilot);
+    fromEvent(aircraftMarker, 'tooltipopen').subscribe(() => this.showFlightLines(pilot));
+    fromEvent(aircraftMarker, 'tooltipclose').subscribe(() => this.clearLines());
+    aircraftMarker.addTo(this.flights);
   }
 
   showFlightLines(pilot: Pilot) {
@@ -116,10 +124,10 @@ export class MapService {
   }
 
   addAirport(airport: Airport) {
-    const marker = this.markerService.airport(airport);
-    fromEvent(marker, 'tooltipopen').subscribe(() => this.showAirportLines(airport));
-    fromEvent(marker, 'tooltipclose').subscribe(() => this.clearLines());
-    marker.addTo(this.airports);
+    const airportMarker = this.markerService.airport(airport);
+    fromEvent(airportMarker, 'tooltipopen').subscribe(() => this.showAirportLines(airport));
+    fromEvent(airportMarker, 'tooltipclose').subscribe(() => this.clearLines());
+    airportMarker.addTo(this.airports);
   }
 
   showAirportLines(airport: Airport) {
@@ -129,6 +137,15 @@ export class MapService {
   /** Clear all lines */
   clearLines() {
     this.lines.clearLayers();
+  }
+
+  addFir(fir: Fir) {
+    polygon(fir.border, {
+      color: '#b02020',
+      fillColor: '#b02020',
+      weight: 2,
+      interactive: false,
+    }).addTo(this.firs);
   }
 
 }

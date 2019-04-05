@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 import { MapModule } from './map/map.module';
 import { API_URL } from './api-url';
 import { environment } from 'src/environments/environment';
+import { VatsimModule } from './vatsim/vatsim.module';
 
 @NgModule({
   declarations: [
@@ -16,6 +17,7 @@ import { environment } from 'src/environments/environment';
     LeafletModule.forRoot(),
 
     MapModule,
+    VatsimModule,
   ],
   providers: [
     { provide: API_URL, useValue: environment.apiUrl },
