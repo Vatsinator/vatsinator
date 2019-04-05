@@ -150,7 +150,7 @@ export class MapService {
 
     const label = divIcon({ html: fir.icao, className: 'vatsim-fir-active' });
     marker(fir.labelPosition, { icon: label })
-      .bindTooltip(fir.name, { direction: 'center' })
+      .bindTooltip(`${fir.name}, ${fir.country}`, { direction: 'center' })
       .addTo(this.firs);
   }
 
