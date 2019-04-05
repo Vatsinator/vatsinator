@@ -56,10 +56,10 @@ export class VatsimService {
       this.clientsSource.next(data.clients);
       this.airportsSource.next(data.activeAirports);
 
-      const firs = data.clients
+      const firs = [...new Set(data.clients
         .filter(client => client.type === 'atc')
         .filter((atc: Atc) => !!atc.fir)
-        .map((atc: Atc) => atc.fir);
+        .map((atc: Atc) => atc.fir))];
       this.fetchFirs(firs);
 
       console.log(`Next update in ${data.general.reload} minutes`);
