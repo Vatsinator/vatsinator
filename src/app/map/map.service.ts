@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { VatsimService } from './vatsim.service';
-import { latLng, layerGroup, Map, polyline, Polyline, LatLng, polygon } from 'leaflet';
+import { latLng, layerGroup, Map, polyline, Polyline, LatLng, polygon, divIcon, marker } from 'leaflet';
 import { MarkerService } from './marker.service';
 import { Pilot } from './models/pilot';
 import { map, tap, withLatestFrom } from 'rxjs/operators';
@@ -145,7 +145,13 @@ export class MapService {
       fillColor: '#b02020',
       weight: 2,
       interactive: false,
-    }).addTo(this.firs);
+    })
+    .addTo(this.firs);
+
+    const label = divIcon({ html: fir.icao, className: 'vatsim-fir-active' });
+    marker(fir.labelPosition, { icon: label })
+      .bindTooltip(fir.name, { direction: 'center' })
+      .addTo(this.firs);
   }
 
 }
