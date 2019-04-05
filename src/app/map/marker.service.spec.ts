@@ -15,7 +15,7 @@ describe('MarkerService', () => {
   describe('#aircraft()', () => {
     it('should return marker at the given position and heading', inject([MarkerService], (service: MarkerService) => {
       const pilot = {
-        position: { latitude: 32.149989, longitude: -110.835842 },
+        position: [32.149989, -110.835842],
         aircraft: 'ZZZZ',
         heading: 101,
         callsign: 'FAKE_CALLSIGN',

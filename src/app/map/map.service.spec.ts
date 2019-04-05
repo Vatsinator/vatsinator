@@ -6,10 +6,12 @@ import { Subject } from 'rxjs';
 import { Airport } from './models/airport';
 import { Client } from './models/client';
 import { Map, Layer } from 'leaflet';
+import { Fir } from '../vatsim/models/fir';
 
 class VatsimServiceStub {
   airports = new Subject<Airport[]>();
   clients = new Subject<Client[]>();
+  firs = new Subject<Fir[]>();
 }
 
 class MarkerServiceStub {
@@ -39,7 +41,7 @@ describe('MapService', () => {
       const spy = spyOn(map, 'createPane').and.callThrough();
 
       service.addMap(map);
-      expect(spy).toHaveBeenCalledTimes(3);
+      expect(spy).toHaveBeenCalledTimes(4);
     }));
 
     it('adds layers', inject([MapService], (service: MapService) => {
@@ -47,7 +49,7 @@ describe('MapService', () => {
       const spy = spyOn(map, 'addLayer').and.callThrough();
 
       service.addMap(map);
-      expect(spy).toHaveBeenCalledTimes(3);
+      expect(spy).toHaveBeenCalledTimes(4);
     }));
   });
 
