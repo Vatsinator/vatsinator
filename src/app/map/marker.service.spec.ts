@@ -32,7 +32,7 @@ describe('MarkerService', () => {
 
   describe('#airport()', () => {
     it('should return marker at the given position', inject([MarkerService], (service: MarkerService) => {
-      const airport = { lat: 27.686944, lon: 86.729722, icao: 'ZZZZ', atcs: [] } as Airport;
+      const airport = { position: [27.686944, 86.729722], icao: 'ZZZZ', atcs: [] } as Airport;
       const marker = service.airport(airport);
       expect(marker.getLatLng()).toEqual(latLng(27.686944, 86.729722));
       expect(marker.getTooltip()).toBeTruthy();
