@@ -3,12 +3,9 @@ export interface Airport {
   iata: string;
   name: string;
   city: string;
-  state: string;
-  country: string;
-  elevation: number;
-  lat: number;
-  lon: number;
-  tz: string;
+  position: [number, number];
+  alias: string;
+  fir: string;
 
   inboundFlights: string[];
   outboundFlights: string[];
