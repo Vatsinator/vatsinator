@@ -8,3 +8,7 @@ export interface Atc extends Client {
   airport?: string;
   fir?: string;
 }
+
+export function isAtc(client: Client): client is Atc {
+  return client.type === 'atc';
+}

@@ -5,7 +5,7 @@ import { Client } from './models/client';
 import { HttpClient } from '@angular/common/http';
 import { Airport } from './models/airport';
 import { Fir } from '../vatsim/models/fir';
-import { Atc } from './models/atc';
+import { Atc, isAtc } from './models/atc';
 import { FirListService } from '../vatsim/fir-list.service';
 import { defaultIfEmpty, map } from 'rxjs/operators';
 import { Pilot, isPilot } from './models/pilot';
@@ -52,7 +52,20 @@ export class VatsimService {
     }),
   );
 
-  readonly airports: Observable<Airport[]> = this.airportsSource.asObservable();
+  readonly airports: Observable<Airport[]> = zip(
+    this.airportsSource,
+    this.clientsSource,
+  ).pipe(
+    map(([airports, clients]) => {
+      return airports.map(airport => {
+        return { ...airport,
+          inboundFlights: clients.filter(client => isPilot(client) && client.to === airport.icao) as Pilot[],
+          outboundFlights: clients.filter(client => isPilot(client) && client.from === airport.icao) as Pilot[],
+          atcs: clients.filter(client => isAtc(client) && client.airport === airport.icao) as Atc[],
+        };
+      });
+    }),
+  );
 
   private firsSource = new ReplaySubject<Fir[]>(1);
   readonly firs = this.firsSource.asObservable();
