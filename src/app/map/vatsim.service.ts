@@ -1,13 +1,14 @@
 import { Injectable, Inject } from '@angular/core';
 import { API_URL } from '../api-url';
-import { ReplaySubject, zip } from 'rxjs';
+import { ReplaySubject, zip, combineLatest, Observable } from 'rxjs';
 import { Client } from './models/client';
 import { HttpClient } from '@angular/common/http';
 import { Airport } from './models/airport';
 import { Fir } from '../vatsim/models/fir';
 import { Atc } from './models/atc';
 import { FirListService } from '../vatsim/fir-list.service';
-import { defaultIfEmpty } from 'rxjs/operators';
+import { defaultIfEmpty, map } from 'rxjs/operators';
+import { Pilot } from './models/pilot';
 
 interface VatsimDataGeneral {
   version: number;
@@ -32,10 +33,26 @@ export class VatsimService {
   readonly general = this.generalSource.asObservable();
 
   private clientsSource = new ReplaySubject<Client[]>(1);
-  readonly clients = this.clientsSource.asObservable();
 
   private airportsSource = new ReplaySubject<Airport[]>(1);
   readonly airports = this.airportsSource.asObservable();
+
+  readonly clients: Observable<Client[]> = combineLatest(
+    this.clientsSource,
+    this.airportsSource,
+  ).pipe(
+    map(([clients, airports]) => {
+      return clients.map(client => {
+        if (client.type === 'pilot') {
+          const from = airports.find(ap => ap.icao === (client as Pilot).from) || (client as Pilot).from;
+          const to = airports.find(ap => ap.icao === (client as Pilot).to) || (client as Pilot).to;
+          return { ...client, from, to };
+        }  else {
+          return client;
+        }
+      });
+    }),
+  );
 
   private firsSource = new ReplaySubject<Fir[]>(1);
   readonly firs = this.firsSource.asObservable();

@@ -4,7 +4,7 @@ import { latLng, layerGroup, Map, polyline, Polyline, LatLng, polygon, divIcon, 
 import { MarkerService } from './marker.service';
 import { Pilot } from './models/pilot';
 import { map, tap, withLatestFrom } from 'rxjs/operators';
-import { Airport } from './models/airport';
+import { Airport, isAirport } from './models/airport';
 import { Subject, fromEvent } from 'rxjs';
 import { Client } from './models/client';
 import { Fir } from '../vatsim/models/fir';
@@ -19,18 +19,16 @@ function makeInboundLine(points: LatLng[]) {
   return polyline(points, { color: '#85a4a4', weight: 2, dashArray: [10, 8] });
 }
 
-function generateFlightLines(flight: Pilot, airports: Airport[]): Polyline[] {
+function generateFlightLines(flight: Pilot): Polyline[] {
   const lines = [];
 
-  const dep = airports.find(ap => ap.icao === flight.from);
-  if (dep) {
-    const points = [latLng(dep.position), latLng(flight.position)];
+  if (isAirport(flight.from)) {
+    const points = [latLng(flight.from.position), latLng(flight.position)];
     lines.push(makeOutboundLine(points));
   }
 
-  const arr = airports.find(ap => ap.icao === flight.to);
-  if (arr) {
-    const points = [latLng(arr.position), latLng(flight.position)];
+  if (isAirport(flight.to)) {
+    const points = [latLng(flight.to.position), latLng(flight.position)];
     lines.push(makeInboundLine(points));
   }
 
@@ -88,8 +86,7 @@ export class MapService {
     ).subscribe(firs => firs.forEach(fir => this.addFir(fir)));
 
     this.flightLines.pipe(
-      withLatestFrom(this.vatsimService.airports),
-      map(([flight, airports]) => generateFlightLines(flight, airports)),
+      map(flight => generateFlightLines(flight)),
     ).subscribe(lines => lines.forEach(line => line.addTo(this.lines)));
 
     this.airportLines.pipe(
