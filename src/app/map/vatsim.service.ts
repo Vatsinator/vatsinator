@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import { API_URL } from '../api-url';
-import { ReplaySubject, zip, combineLatest, Observable } from 'rxjs';
+import { ReplaySubject, zip, Observable } from 'rxjs';
 import { Client } from './models/client';
 import { HttpClient } from '@angular/common/http';
 import { Airport } from './models/airport';
@@ -8,7 +8,7 @@ import { Fir } from '../vatsim/models/fir';
 import { Atc } from './models/atc';
 import { FirListService } from '../vatsim/fir-list.service';
 import { defaultIfEmpty, map } from 'rxjs/operators';
-import { Pilot } from './models/pilot';
+import { Pilot, isPilot } from './models/pilot';
 
 interface VatsimDataGeneral {
   version: number;
@@ -30,22 +30,20 @@ interface VatsimData {
 export class VatsimService {
 
   private generalSource = new ReplaySubject<VatsimDataGeneral>(1);
+  private clientsSource = new ReplaySubject<Client[]>(1);
+  private airportsSource = new ReplaySubject<Airport[]>(1);
+
   readonly general = this.generalSource.asObservable();
 
-  private clientsSource = new ReplaySubject<Client[]>(1);
-
-  private airportsSource = new ReplaySubject<Airport[]>(1);
-  readonly airports = this.airportsSource.asObservable();
-
-  readonly clients: Observable<Client[]> = combineLatest(
+  readonly clients: Observable<Client[]> = zip(
     this.clientsSource,
     this.airportsSource,
   ).pipe(
     map(([clients, airports]) => {
       return clients.map(client => {
-        if (client.type === 'pilot') {
-          const from = airports.find(ap => ap.icao === (client as Pilot).from) || (client as Pilot).from;
-          const to = airports.find(ap => ap.icao === (client as Pilot).to) || (client as Pilot).to;
+        if (isPilot(client)) {
+          const from = airports.find(ap => ap.icao === client.from) || client.from;
+          const to = airports.find(ap => ap.icao === client.to) || client.to;
           return { ...client, from, to };
         }  else {
           return client;
@@ -53,6 +51,8 @@ export class VatsimService {
       });
     }),
   );
+
+  readonly airports: Observable<Airport[]> = this.airportsSource.asObservable();
 
   private firsSource = new ReplaySubject<Fir[]>(1);
   readonly firs = this.firsSource.asObservable();

@@ -9,3 +9,7 @@ export interface Pilot extends Client {
   groundSpeed: number;
   flightPhase: 'departing' | 'airborne' | 'arrived';
 }
+
+export function isPilot(client: Client): client is Pilot {
+  return client.type === 'pilot';
+}
