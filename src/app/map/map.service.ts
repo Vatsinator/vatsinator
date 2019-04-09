@@ -3,10 +3,9 @@ import { VatsimService } from './vatsim.service';
 import { latLng, layerGroup, Map, polyline, Polyline, LatLng, polygon, divIcon, marker } from 'leaflet';
 import { MarkerService } from './marker.service';
 import { Pilot } from './models/pilot';
-import { map, tap, withLatestFrom } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { Airport, isAirport } from './models/airport';
 import { Subject, fromEvent } from 'rxjs';
-import { Client } from './models/client';
 import { Fir } from '../vatsim/models/fir';
 
 /** Create a solid line */
@@ -35,20 +34,16 @@ function generateFlightLines(flight: Pilot): Polyline[] {
   return lines;
 }
 
-function generateAirportLines(airport: Airport, clients: Client[]): Polyline[] {
+function generateAirportLines(airport: Airport): Polyline[] {
   return [
-    ...airport.inboundFlights.map(callsign => {
-      const flight = clients.find(f => f.callsign === callsign);
+    ...(airport.inboundFlights as Pilot[]).map(flight => {
       if (flight) {
-        const points = [latLng(airport.position), latLng(flight.position)];
-        return makeInboundLine(points);
+        return makeInboundLine([latLng(airport.position), latLng(flight.position)]);
       }
     }),
-    ...airport.outboundFlights.map(callsign => {
-      const flight = clients.find(f => f.callsign === callsign);
+    ...(airport.outboundFlights as Pilot[]).map(flight => {
       if (flight) {
-        const points = [latLng(airport.position), latLng(flight.position)];
-        return makeOutboundLine(points);
+        return makeOutboundLine([latLng(airport.position), latLng(flight.position)]);
       }
     }),
   ];
@@ -90,8 +85,7 @@ export class MapService {
     ).subscribe(lines => lines.forEach(line => line.addTo(this.lines)));
 
     this.airportLines.pipe(
-      withLatestFrom(this.vatsimService.clients),
-      map(([airport, clients]) => generateAirportLines(airport, clients)),
+      map(airport => generateAirportLines(airport)),
     ).subscribe(lines => lines.forEach(line => line.addTo(this.lines)));
   }
 
