@@ -72,7 +72,7 @@ export class MarkerService {
     return marker(airport.position, {
       icon: airport.atcs.length > 0 ? this.airportIconAtc : this.airportIcon,
       riseOnHover: true,
-    }).bindTooltip(airport.icao, { direction: 'top' });
+    }).bindTooltip(() => this.tooltipService.forAirport(airport), { direction: 'top' });
   }
 
 }
