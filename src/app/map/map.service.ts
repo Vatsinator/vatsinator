@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { VatsimService } from './vatsim.service';
-import { latLng, layerGroup, Map, polyline, Polyline, LatLng, polygon, divIcon, marker } from 'leaflet';
+import { latLng, layerGroup, Map, polyline, Polyline, LatLng, polygon, divIcon, marker, circle } from 'leaflet';
 import { MarkerService } from './marker.service';
 import { Pilot } from './models/pilot';
 import { map, tap } from 'rxjs/operators';
 import { Airport, isAirport } from './models/airport';
 import { Subject, fromEvent } from 'rxjs';
 import { Fir } from '../vatsim/models/fir';
+import { Atc } from './models/atc';
 
 /** Create a solid line */
 function makeOutboundLine(points: LatLng[]) {
@@ -55,6 +56,7 @@ function generateAirportLines(airport: Airport): Polyline[] {
 export class MapService {
 
   private firs = layerGroup([], { pane: 'firs' });
+  private tmas = layerGroup([], { pane: 'tmas' });
   private airports = layerGroup([], { pane: 'airports' });
   private flights = layerGroup([], { pane: 'flights' });
   private lines = layerGroup([], { pane: 'lines' });
@@ -92,11 +94,13 @@ export class MapService {
   addMap(theMap: Map) {
     // https://leafletjs.com/reference-1.4.0.html#map-pane
     theMap.createPane('firs').style.zIndex = '510';
-    theMap.createPane('lines').style.zIndex = '520';
-    theMap.createPane('airports').style.zIndex = '530';
-    theMap.createPane('flights').style.zIndex = '540';
+    theMap.createPane('tmas').style.zIndex = '520';
+    theMap.createPane('lines').style.zIndex = '530';
+    theMap.createPane('airports').style.zIndex = '540';
+    theMap.createPane('flights').style.zIndex = '550';
 
     this.firs.addTo(theMap);
+    this.tmas.addTo(theMap);
     this.airports.addTo(theMap);
     this.flights.addTo(theMap);
     this.lines.addTo(theMap);
@@ -118,6 +122,16 @@ export class MapService {
     fromEvent(airportMarker, 'tooltipopen').subscribe(() => this.showAirportLines(airport));
     fromEvent(airportMarker, 'tooltipclose').subscribe(() => this.clearLines());
     airportMarker.addTo(this.airports);
+
+    if ((airport.atcs as Atc[]).filter(atc => atc.facility === 'APP').length > 0) {
+      circle(latLng(airport.position), {
+        radius: 50000,
+        fillColor: '#0059ff',
+        fillOpacity: 0.2,
+        stroke: false,
+        interactive: false,
+      }).addTo(this.tmas);
+    }
   }
 
   showAirportLines(airport: Airport) {

@@ -41,7 +41,7 @@ describe('MapService', () => {
       const spy = spyOn(map, 'createPane').and.callThrough();
 
       service.addMap(map);
-      expect(spy).toHaveBeenCalledTimes(4);
+      expect(spy).toHaveBeenCalledTimes(5);
     }));
 
     it('adds layers', inject([MapService], (service: MapService) => {
@@ -49,7 +49,7 @@ describe('MapService', () => {
       const spy = spyOn(map, 'addLayer').and.callThrough();
 
       service.addMap(map);
-      expect(spy).toHaveBeenCalledTimes(4);
+      expect(spy).toHaveBeenCalledTimes(5);
     }));
   });
 
