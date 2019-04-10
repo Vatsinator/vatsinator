@@ -2,9 +2,18 @@ import { TestBed, inject } from '@angular/core/testing';
 import { MarkerService } from './marker.service';
 import { Pilot, Airport } from '@app/vatsim/models';
 import { latLng } from 'leaflet';
+import { TooltipService } from './tooltip.service';
+
+class TooltipServiceStub {
+  forFlight(pilot: Pilot) { }
+}
 
 describe('MarkerService', () => {
-  beforeEach(() => TestBed.configureTestingModule({}));
+  beforeEach(() => TestBed.configureTestingModule({
+    providers: [
+      { provide: TooltipService, useClass: TooltipServiceStub },
+    ]
+  }));
 
   it('should be created', () => {
     const service: MarkerService = TestBed.get(MarkerService);
@@ -25,8 +34,6 @@ describe('MarkerService', () => {
       expect(marker.options.rotationAngle).toEqual(101);
       expect(marker.getTooltip()).toBeTruthy();
     }));
-
-    it('should fetch correct aircraft icon');
   });
 
   describe('#airport()', () => {
@@ -37,6 +44,14 @@ describe('MarkerService', () => {
       expect(marker.getTooltip()).toBeTruthy();
     }));
 
-    it('should fetch correct icon');
+    it('should fetch correct icon', inject([MarkerService], (service: MarkerService) => {
+      const airport = { position: [27.686944, 86.729722], icao: 'ZZZZ', atcs: [] } as Airport;
+      const marker = service.airport(airport);
+      expect(marker.options.icon.options.iconUrl).toEqual('/assets/airport.png');
+
+      const airport2 = { position: [27.686944, 86.729722], icao: 'ZZZZ', atcs: ['FAKE_ATC'] } as Airport;
+      const marker2 = service.airport(airport2);
+      expect(marker2.options.icon.options.iconUrl).toEqual('/assets/airport_atc.png');
+    }));
   });
 });
