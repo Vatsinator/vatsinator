@@ -132,8 +132,9 @@ export class MapService {
   addFir(fir: Fir) {
     polygon(fir.boundaries, {
       color: '#b02020',
+      opacity: 0.2,
       fillColor: '#b02020',
-      weight: 2,
+      weight: 1,
       interactive: false,
     })
     .addTo(this.firs);
