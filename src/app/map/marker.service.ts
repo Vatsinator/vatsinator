@@ -3,7 +3,9 @@ import * as L from 'leaflet';
 import 'leaflet-rotatedmarker';
 import { Airport } from './models/airport';
 import { Pilot } from './models/pilot';
-import { Marker, latLng, marker, Icon } from 'leaflet';
+import { Marker, latLng, marker, Icon, divIcon } from 'leaflet';
+import { TooltipService } from './tooltip.service';
+import { Fir } from '../vatsim/models/fir';
 
 interface AircraftIcon {
   model: string;
@@ -53,6 +55,10 @@ export class MarkerService {
   private airportIcon = L.icon({ iconUrl: '/assets/airport.png', iconSize: [20, 20], tooltipAnchor: [0, -10] });
   private airportIconAtc = L.icon({ iconUrl: '/assets/airport_atc.png', iconSize: [20, 20], tooltipAnchor: [0, -10] });
 
+  constructor(
+    private tooltipService: TooltipService,
+  ) { }
+
   aircraft(pilot: Pilot): Marker {
     return marker(pilot.position, {
       icon: (this.aircraftIcons.find(a => pilot.aircraft.search(a.match) >= 0) || this.default).icon,
@@ -60,14 +66,25 @@ export class MarkerService {
       rotationOrigin: 'center center',
       riseOnHover: true,
     })
-    .bindTooltip(pilot.callsign, { direction: 'top' });
+    .bindTooltip(() => this.tooltipService.forFlight(pilot), { direction: 'top' });
   }
 
-  airport(airport: Airport) {
+  airport(airport: Airport): Marker {
     return marker(airport.position, {
       icon: airport.atcs.length > 0 ? this.airportIconAtc : this.airportIcon,
       riseOnHover: true,
-    }).bindTooltip(airport.icao, { direction: 'top' });
+    }).bindTooltip(() => this.tooltipService.forAirport(airport), { direction: 'top' });
+  }
+
+  fir(fir: Fir): Marker {
+    const label = divIcon({
+      html: fir.icao,
+      className: 'vatsim-fir-label-active',
+      iconSize: [100, 16],
+      tooltipAnchor: [50, -8],
+    });
+    return marker(fir.labelPosition, { icon: label })
+      .bindTooltip(() => this.tooltipService.forFir(fir), { direction: 'top' });
   }
 
 }

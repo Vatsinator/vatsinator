@@ -1,3 +1,5 @@
+import { Atc } from '../../map/models/atc';
+
 export interface Fir {
   icao: string;
   name: string;
@@ -7,4 +9,6 @@ export interface Fir {
   country?: string;
   labelPosition: [number, number];
   oceanic: boolean;
+
+  atcs?: Atc[];
 }

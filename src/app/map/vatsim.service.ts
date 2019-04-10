@@ -1,13 +1,14 @@
 import { Injectable, Inject } from '@angular/core';
 import { API_URL } from '../api-url';
-import { ReplaySubject, zip } from 'rxjs';
+import { ReplaySubject, zip, Observable } from 'rxjs';
 import { Client } from './models/client';
 import { HttpClient } from '@angular/common/http';
 import { Airport } from './models/airport';
 import { Fir } from '../vatsim/models/fir';
-import { Atc } from './models/atc';
+import { Atc, isAtc } from './models/atc';
 import { FirListService } from '../vatsim/fir-list.service';
-import { defaultIfEmpty } from 'rxjs/operators';
+import { defaultIfEmpty, map } from 'rxjs/operators';
+import { Pilot, isPilot } from './models/pilot';
 
 interface VatsimDataGeneral {
   version: number;
@@ -29,16 +30,56 @@ interface VatsimData {
 export class VatsimService {
 
   private generalSource = new ReplaySubject<VatsimDataGeneral>(1);
+  private clientsSource = new ReplaySubject<Client[]>(1);
+  private airportsSource = new ReplaySubject<Airport[]>(1);
+  private firsSource = new ReplaySubject<Fir[]>(1);
+
   readonly general = this.generalSource.asObservable();
 
-  private clientsSource = new ReplaySubject<Client[]>(1);
-  readonly clients = this.clientsSource.asObservable();
+  readonly clients: Observable<Client[]> = zip(
+    this.clientsSource,
+    this.airportsSource,
+  ).pipe(
+    map(([clients, airports]) => {
+      return clients.map(client => {
+        if (isPilot(client)) {
+          const from = airports.find(ap => ap.icao === client.from) || client.from;
+          const to = airports.find(ap => ap.icao === client.to) || client.to;
+          return { ...client, from, to };
+        }  else {
+          return client;
+        }
+      });
+    }),
+  );
 
-  private airportsSource = new ReplaySubject<Airport[]>(1);
-  readonly airports = this.airportsSource.asObservable();
+  readonly airports: Observable<Airport[]> = zip(
+    this.airportsSource,
+    this.clientsSource,
+  ).pipe(
+    map(([airports, clients]) => {
+      return airports.map(airport => {
+        return { ...airport,
+          inboundFlights: clients.filter(client => isPilot(client) && client.to === airport.icao) as Pilot[],
+          outboundFlights: clients.filter(client => isPilot(client) && client.from === airport.icao) as Pilot[],
+          atcs: clients.filter(client => isAtc(client) && client.airport === airport.icao) as Atc[],
+        };
+      });
+    }),
+  );
 
-  private firsSource = new ReplaySubject<Fir[]>(1);
-  readonly firs = this.firsSource.asObservable();
+  readonly firs: Observable<Fir[]> = zip(
+    this.firsSource,
+    this.clientsSource,
+  ).pipe(
+    map(([firs, clients]) => {
+      return firs.map(fir => {
+        return { ...fir,
+          atcs: clients.filter(client => isAtc(client) && client.fir === fir.icao) as Atc[]
+        };
+      });
+    }),
+  );
 
   constructor(
     private http: HttpClient,

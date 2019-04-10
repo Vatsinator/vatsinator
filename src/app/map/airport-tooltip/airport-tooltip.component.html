@@ -1,0 +1,10 @@
+<div class="d-flex flex-column justify-content-center align-items-center">
+  <div><span class="icao">{{ airport?.icao }}</span></div>
+  <div>
+    <span class="name">{{ airport?.name }}<ng-container *ngIf="airport?.city">, {{ airport.city }}</ng-container></span>
+  </div>
+
+  <div *ngFor="let atc of airport?.atcs">
+    <span class="atc">{{ atc.callsign }} {{ atc.frequency }}</span>
+  </div>
+</div>
