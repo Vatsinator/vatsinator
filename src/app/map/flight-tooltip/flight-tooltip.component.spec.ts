@@ -41,4 +41,15 @@ describe('FlightTooltipComponent', () => {
     const el = fixture.debugElement.query(By.css('.callsign')).nativeElement as HTMLElement;
     expect(el.innerText).toEqual('FAKE_CALLSIGN');
   });
+
+  it('should render aircraft', () => {
+    const pilot = { aircraft: 'FAKE_AIRCRAFT' } as Pilot;
+    component.pilot = pilot;
+    fixture.detectChanges();
+
+    const el = fixture.debugElement.query(By.css('.aircraft')).nativeElement as HTMLElement;
+    expect(el.innerText).toEqual('FAKE_AIRCRAFT');
+  });
+
+  it('should render airports');
 });

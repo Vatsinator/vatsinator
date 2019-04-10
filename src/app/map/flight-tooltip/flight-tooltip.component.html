@@ -1,5 +1,6 @@
 <div class="d-flex flex-column justify-content-center align-items-center">
   <div><span class="callsign">{{ pilot?.callsign }}</span></div>
+  <div><span class="aircraft">{{ pilot?.aircraft }}</span></div>
   <div>
     <span class="route" *ngIf="pilot && pilot.from && pilot.to">
       {{ pilot.from | airport }} &rArr; {{ pilot.to | airport }}
