@@ -1,7 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FlightTooltipComponent } from './flight-tooltip.component';
 import { Pipe, PipeTransform } from '@angular/core';
-import { Pilot } from '../models/pilot';
+import { Pilot } from '@app/vatsim/models';
 import { By } from '@angular/platform-browser';
 
 @Pipe({ name: 'airport' })

@@ -1,8 +1,7 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { MarkerService } from './marker.service';
-import { Pilot } from './models/pilot';
+import { Pilot, Airport } from '@app/vatsim/models';
 import { latLng } from 'leaflet';
-import { Airport } from './models/airport';
 
 describe('MarkerService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));

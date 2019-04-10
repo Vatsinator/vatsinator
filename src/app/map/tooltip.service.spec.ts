@@ -1,12 +1,10 @@
 import { TestBed, inject, async } from '@angular/core/testing';
 import { TooltipService } from './tooltip.service';
-import { Pilot } from './models/pilot';
+import { Pilot, Airport, Fir } from '@app/vatsim/models';
 import { NgModule, Pipe, PipeTransform, ApplicationRef } from '@angular/core';
 import { FlightTooltipComponent } from './flight-tooltip/flight-tooltip.component';
 import { CommonModule } from '@angular/common';
 import { AirportTooltipComponent } from './airport-tooltip/airport-tooltip.component';
-import { Airport } from './models/airport';
-import { Fir } from '@app/vatsim/models/fir';
 import { FirTooltipComponent } from './fir-tooltip/fir-tooltip.component';
 
 @Pipe({ name: 'airport' })

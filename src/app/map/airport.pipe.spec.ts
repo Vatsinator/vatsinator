@@ -1,5 +1,5 @@
 import { AirportPipe } from './airport.pipe';
-import { Airport } from './models/airport';
+import { Airport } from '@app/vatsim/models';
 
 describe('AirportPipe', () => {
   it('create an instance', () => {

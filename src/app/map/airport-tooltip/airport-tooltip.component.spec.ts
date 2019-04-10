@@ -1,6 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { AirportTooltipComponent } from './airport-tooltip.component';
-import { Airport } from '../models/airport';
+import { Airport } from '@app/vatsim/models/airport';
 import { By } from '@angular/platform-browser';
 
 describe('AirportTooltipComponent', () => {

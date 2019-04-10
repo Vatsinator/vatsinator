@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core';
 import * as L from 'leaflet';
 import 'leaflet-rotatedmarker';
-import { Airport } from './models/airport';
-import { Pilot } from './models/pilot';
+import { Airport, Pilot, Fir } from '@app/vatsim/models';
 import { Marker, marker, Icon, divIcon } from 'leaflet';
 import { TooltipService } from './tooltip.service';
-import { Fir } from '@app/vatsim/models/fir';
 
 interface AircraftIcon {
   model: string;

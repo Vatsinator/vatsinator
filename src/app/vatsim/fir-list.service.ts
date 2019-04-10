@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { API_URL } from '@app/api-url';
 import { Observable } from 'rxjs';
-import { Fir } from './models/fir';
+import { Fir } from './models';
 
 @Injectable({
   providedIn: 'root'

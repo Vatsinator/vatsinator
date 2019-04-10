@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { Airport } from './models/airport';
+import { Airport } from '@app/vatsim/models';
 
 @Pipe({
   name: 'airport'

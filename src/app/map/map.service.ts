@@ -1,13 +1,11 @@
 import { Injectable } from '@angular/core';
-import { VatsimService } from './vatsim.service';
-import { latLng, layerGroup, Map, polyline, Polyline, LatLng, polygon, divIcon, marker, circle } from 'leaflet';
+import { VatsimService } from '@app/vatsim/vatsim.service';
+import { latLng, layerGroup, Map, polyline, Polyline, LatLng, polygon, circle } from 'leaflet';
 import { MarkerService } from './marker.service';
-import { Pilot } from './models/pilot';
+import { Pilot } from '@app/vatsim/models/pilot';
 import { map, tap } from 'rxjs/operators';
-import { Airport, isAirport } from './models/airport';
+import { Airport, isAirport, Fir, Atc } from '@app/vatsim/models';
 import { Subject, fromEvent } from 'rxjs';
-import { Fir } from '@app/vatsim/models/fir';
-import { Atc } from './models/atc';
 
 /** Create a solid line */
 function makeOutboundLine(points: LatLng[]) {

@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Fir } from '@app/vatsim/models/fir';
+import { Fir } from '@app/vatsim/models';
 
 @Component({
   selector: 'app-fir-tooltip',

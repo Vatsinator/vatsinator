@@ -1,9 +1,7 @@
 import { Injectable, ComponentFactoryResolver, Injector, ApplicationRef, ComponentRef, EmbeddedViewRef, NgZone, Type } from '@angular/core';
-import { Pilot } from './models/pilot';
+import { Pilot, Airport, Fir } from '@app/vatsim/models';
 import { FlightTooltipComponent } from './flight-tooltip/flight-tooltip.component';
-import { Airport } from './models/airport';
 import { AirportTooltipComponent } from './airport-tooltip/airport-tooltip.component';
-import { Fir } from '@app/vatsim/models/fir';
 import { FirTooltipComponent } from './fir-tooltip/fir-tooltip.component';
 
 @Injectable({

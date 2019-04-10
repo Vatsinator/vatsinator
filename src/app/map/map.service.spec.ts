@@ -1,12 +1,10 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { MapService } from './map.service';
 import { MarkerService } from './marker.service';
-import { VatsimService } from './vatsim.service';
+import { VatsimService } from '@app/vatsim/vatsim.service';
 import { Subject } from 'rxjs';
-import { Airport } from './models/airport';
-import { Client } from './models/client';
+import { Airport, Client, Fir } from '@app/vatsim/models';
 import { Map, Layer } from 'leaflet';
-import { Fir } from '../vatsim/models/fir';
 
 class VatsimServiceStub {
   airports = new Subject<Airport[]>();

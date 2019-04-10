@@ -1,5 +1,4 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { FirTooltipComponent } from './fir-tooltip.component';
 
 describe('FirTooltipComponent', () => {
@@ -22,4 +21,6 @@ describe('FirTooltipComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should render correct FIR name');
 });

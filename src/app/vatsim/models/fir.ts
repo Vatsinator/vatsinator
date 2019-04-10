@@ -1,4 +1,4 @@
-import { Atc } from '@app/map/models/atc';
+import { Atc } from '@app/vatsim/models/atc';
 
 export interface Fir {
   icao: string;
