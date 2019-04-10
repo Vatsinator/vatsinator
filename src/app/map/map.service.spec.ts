@@ -3,8 +3,8 @@ import { MapService } from './map.service';
 import { MarkerService } from './marker.service';
 import { VatsimService } from '@app/vatsim/vatsim.service';
 import { Subject } from 'rxjs';
-import { Airport, Client, Fir } from '@app/vatsim/models';
-import { Map, Layer } from 'leaflet';
+import { Airport, Client, Fir, Pilot } from '@app/vatsim/models';
+import { Map, Layer, marker, latLng } from 'leaflet';
 
 class VatsimServiceStub {
   airports = new Subject<Airport[]>();
@@ -13,7 +13,9 @@ class VatsimServiceStub {
 }
 
 class MarkerServiceStub {
-
+  marker = marker(latLng(0, 0));
+  aircraft(pilot: Pilot) { return this.marker; }
+  airport(airport: Airport) { return this.marker; }
 }
 
 class MapStub {
@@ -52,9 +54,17 @@ describe('MapService', () => {
   });
 
   describe('#addFlight',  () => {
-    it('should get proper marker');
-    it('should handle mouse events');
-    it('should add the marker to flights layer');
+    it('should get proper marker', inject([MapService], (service: MapService) => {
+      const spy = spyOn(TestBed.get(MarkerService), 'aircraft').and.callThrough();
+      service.addFlight({ } as Pilot);
+      expect(spy).toHaveBeenCalled();
+    }));
+
+    it('should add the marker to flights layer', inject([MapService], (service: MapService) => {
+      const spy = spyOn(TestBed.get(MarkerService).marker, 'addTo');
+      service.addFlight({ } as Pilot);
+      expect(spy).toHaveBeenCalled();
+    }));
   });
 
   describe('#showFlightLines()', () => {
@@ -63,9 +73,17 @@ describe('MapService', () => {
   });
 
   describe('#addAirport', () => {
-    it('should get proper marke');
-    it('should handle mouse events');
-    it('should add the marker to airports layer');
+    it('should get proper marker', inject([MapService], (service: MapService) => {
+      const spy = spyOn(TestBed.get(MarkerService), 'airport').and.callThrough();
+      service.addAirport({ atcs: [] } as Airport);
+      expect(spy).toHaveBeenCalled();
+    }));
+
+    it('should add the marker to airports layer', inject([MapService], (service: MapService) => {
+      const spy = spyOn(TestBed.get(MarkerService).marker, 'addTo');
+      service.addAirport({ atcs: [] } as Airport);
+      expect(spy).toHaveBeenCalled();
+    }));
   });
 
   describe('#showAirportLines()', () => {
