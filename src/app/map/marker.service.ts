@@ -77,7 +77,12 @@ export class MarkerService {
   }
 
   fir(fir: Fir): Marker {
-    const label = divIcon({ html: fir.icao, className: 'vatsim-fir-label-active' });
+    const label = divIcon({
+      html: fir.icao,
+      className: 'vatsim-fir-label-active',
+      iconSize: [100, 16],
+      tooltipAnchor: [50, -8],
+    });
     return marker(fir.labelPosition, { icon: label })
       .bindTooltip(() => this.tooltipService.forFir(fir), { direction: 'top' });
   }
