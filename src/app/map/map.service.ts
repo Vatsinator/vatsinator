@@ -6,7 +6,7 @@ import { Pilot } from './models/pilot';
 import { map, tap } from 'rxjs/operators';
 import { Airport, isAirport } from './models/airport';
 import { Subject, fromEvent } from 'rxjs';
-import { Fir } from '../vatsim/models/fir';
+import { Fir } from '@app/vatsim/models/fir';
 import { Atc } from './models/atc';
 
 /** Create a solid line */

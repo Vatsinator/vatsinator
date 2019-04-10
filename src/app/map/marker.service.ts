@@ -3,9 +3,9 @@ import * as L from 'leaflet';
 import 'leaflet-rotatedmarker';
 import { Airport } from './models/airport';
 import { Pilot } from './models/pilot';
-import { Marker, latLng, marker, Icon, divIcon } from 'leaflet';
+import { Marker, marker, Icon, divIcon } from 'leaflet';
 import { TooltipService } from './tooltip.service';
-import { Fir } from '../vatsim/models/fir';
+import { Fir } from '@app/vatsim/models/fir';
 
 interface AircraftIcon {
   model: string;

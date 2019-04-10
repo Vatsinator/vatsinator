@@ -3,7 +3,7 @@ import { Pilot } from './models/pilot';
 import { FlightTooltipComponent } from './flight-tooltip/flight-tooltip.component';
 import { Airport } from './models/airport';
 import { AirportTooltipComponent } from './airport-tooltip/airport-tooltip.component';
-import { Fir } from '../vatsim/models/fir';
+import { Fir } from '@app/vatsim/models/fir';
 import { FirTooltipComponent } from './fir-tooltip/fir-tooltip.component';
 
 @Injectable({

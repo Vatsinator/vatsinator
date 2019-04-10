@@ -1,4 +1,4 @@
-import { Atc } from '../../map/models/atc';
+import { Atc } from '@app/map/models/atc';
 
 export interface Fir {
   icao: string;

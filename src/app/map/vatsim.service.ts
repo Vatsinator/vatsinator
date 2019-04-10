@@ -4,9 +4,9 @@ import { ReplaySubject, zip, Observable } from 'rxjs';
 import { Client } from './models/client';
 import { HttpClient } from '@angular/common/http';
 import { Airport } from './models/airport';
-import { Fir } from '../vatsim/models/fir';
+import { Fir } from '@app/vatsim/models/fir';
 import { Atc, isAtc } from './models/atc';
-import { FirListService } from '../vatsim/fir-list.service';
+import { FirListService } from '@app/vatsim/fir-list.service';
 import { defaultIfEmpty, map } from 'rxjs/operators';
 import { Pilot, isPilot } from './models/pilot';
 
