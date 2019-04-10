@@ -1,4 +1,4 @@
-import { Injectable, ComponentFactoryResolver, Injector, ApplicationRef, ComponentRef, EmbeddedViewRef, NgZone } from '@angular/core';
+import { Injectable, ComponentFactoryResolver, Injector, ApplicationRef, ComponentRef, EmbeddedViewRef, NgZone, Type } from '@angular/core';
 import { Pilot } from './models/pilot';
 import { FlightTooltipComponent } from './flight-tooltip/flight-tooltip.component';
 import { Airport } from './models/airport';
@@ -21,44 +21,33 @@ export class TooltipService {
   ) { }
 
   forFlight(pilot: Pilot): HTMLElement {
-    if (this.tooltipRef) {
-      this.tooltipRef.destroy();
-    }
-
-    return this.zone.run(() => {
-      const factory = this.componentFactoryResolver.resolveComponentFactory(FlightTooltipComponent);
-      this.tooltipRef = factory.create(this.injector);
-      this.appRef.attachView(this.tooltipRef.hostView);
-      this.tooltipRef.instance.pilot = pilot;
-      return (this.tooltipRef.hostView as EmbeddedViewRef<any>).rootNodes[0] as HTMLElement;
-    });
+    return this.create(FlightTooltipComponent, componentRef => componentRef.instance.pilot = pilot);
   }
 
   forAirport(airport: Airport): HTMLElement {
-    if (this.tooltipRef) {
-      this.tooltipRef.destroy();
-    }
-
-    return this.zone.run(() => {
-      const factory = this.componentFactoryResolver.resolveComponentFactory(AirportTooltipComponent);
-      this.tooltipRef = factory.create(this.injector);
-      this.appRef.attachView(this.tooltipRef.hostView);
-      this.tooltipRef.instance.airport = airport;
-      return (this.tooltipRef.hostView as EmbeddedViewRef<any>).rootNodes[0] as HTMLElement;
-    });
+    return this.create(AirportTooltipComponent, componentRef => componentRef.instance.airport = airport);
   }
 
   forFir(fir: Fir): HTMLElement {
+    return this.create(FirTooltipComponent, componentRef => componentRef.instance.fir = fir);
+  }
+
+  private create<T>(type: Type<T>, onCreated?: (componentRef: ComponentRef<T>) => void): HTMLElement {
     if (this.tooltipRef) {
       this.tooltipRef.destroy();
     }
 
     return this.zone.run(() => {
-      const factory = this.componentFactoryResolver.resolveComponentFactory(FirTooltipComponent);
-      this.tooltipRef = factory.create(this.injector);
-      this.appRef.attachView(this.tooltipRef.hostView);
-      this.tooltipRef.instance.fir = fir;
-      return (this.tooltipRef.hostView as EmbeddedViewRef<any>).rootNodes[0] as HTMLElement;
+      const factory = this.componentFactoryResolver.resolveComponentFactory(type);
+      const component = factory.create(this.injector);
+      this.appRef.attachView(component.hostView);
+
+      if (onCreated) {
+        onCreated(component);
+      }
+
+      this.tooltipRef = component;
+      return (component.hostView as EmbeddedViewRef<any>).rootNodes[0] as HTMLElement;
     });
   }
 
