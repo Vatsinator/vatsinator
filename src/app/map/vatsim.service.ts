@@ -32,6 +32,7 @@ export class VatsimService {
   private generalSource = new ReplaySubject<VatsimDataGeneral>(1);
   private clientsSource = new ReplaySubject<Client[]>(1);
   private airportsSource = new ReplaySubject<Airport[]>(1);
+  private firsSource = new ReplaySubject<Fir[]>(1);
 
   readonly general = this.generalSource.asObservable();
 
@@ -67,8 +68,18 @@ export class VatsimService {
     }),
   );
 
-  private firsSource = new ReplaySubject<Fir[]>(1);
-  readonly firs = this.firsSource.asObservable();
+  readonly firs: Observable<Fir[]> = zip(
+    this.firsSource,
+    this.clientsSource,
+  ).pipe(
+    map(([firs, clients]) => {
+      return firs.map(fir => {
+        return { ...fir,
+          atcs: clients.filter(client => isAtc(client) && client.fir === fir.icao) as Atc[]
+        };
+      });
+    }),
+  );
 
   constructor(
     private http: HttpClient,

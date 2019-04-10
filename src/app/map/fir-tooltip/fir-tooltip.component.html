@@ -1,0 +1,7 @@
+<div *ngIf="fir"
+  class="d-flex flex-column justify-content-center align-items-center">
+  <div><span class="name">{{ fir?.name }}, {{ fir?.country }}</span></div>
+  <div *ngFor="let atc of fir.atcs">
+    <div><span class="atc">{{ atc.callsign }} {{ atc.frequency }}</span></div>
+  </div>
+</div>
