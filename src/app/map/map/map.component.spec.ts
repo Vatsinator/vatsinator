@@ -1,6 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { MapComponent } from './map.component';
-import { Map, latLng } from 'leaflet';
+import { Map, latLng, LeafletEvent } from 'leaflet';
 import { MapService } from '../map.service';
 import { MapViewService } from '../map-view.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
@@ -56,6 +56,24 @@ describe('MapComponent', () => {
       const spy = spyOn(TestBed.get(MapService), 'addMap');
       component.onMapReady(map);
       expect(spy).toHaveBeenCalledWith(map);
+    });
+  });
+
+  describe('#onMoveEnd()', () => {
+    it('should call MapViewService.save()', () => {
+      const event = { target: { getCenter: () => {} } } as LeafletEvent;
+      const spy = spyOn(TestBed.get(MapViewService), 'save');
+      component.onMoveEnd(event);
+      expect(spy).toHaveBeenCalled();
+    });
+  });
+
+  describe('#onZoomEnd()', () => {
+    it('should call MapViewService.save()', () => {
+      const event = { target: { getZoom: () => {} } } as LeafletEvent;
+      const spy = spyOn(TestBed.get(MapViewService), 'save');
+      component.onZoomEnd(event);
+      expect(spy).toHaveBeenCalled();
     });
   });
 });
