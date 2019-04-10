@@ -1,6 +1,6 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { MarkerService } from './marker.service';
-import { Pilot, Airport } from '@app/vatsim/models';
+import { Pilot, Airport, Fir } from '@app/vatsim/models';
 import { latLng } from 'leaflet';
 import { TooltipService } from './tooltip.service';
 
@@ -52,6 +52,21 @@ describe('MarkerService', () => {
       const airport2 = { position: [27.686944, 86.729722], icao: 'ZZZZ', atcs: ['FAKE_ATC'] } as Airport;
       const marker2 = service.airport(airport2);
       expect(marker2.options.icon.options.iconUrl).toEqual('/assets/airport_atc.png');
+    }));
+  });
+
+  describe('#fir()', () => {
+    it('should return marker at the given position', inject([MarkerService], (service: MarkerService) => {
+      const fir = { icao: 'ZZZZ', labelPosition: [27.686944, 86.729722] } as Fir;
+      const marker = service.fir(fir);
+      expect(marker.getLatLng()).toEqual(latLng(27.686944, 86.729722));
+      expect(marker.getTooltip()).toBeTruthy();
+    }));
+
+    it('should add css classes to the label', inject([MarkerService], (service: MarkerService) => {
+      const fir = { icao: 'ZZZZ', labelPosition: [0, 0] } as Fir;
+      const marker = service.fir(fir);
+      expect(marker.options.icon.options.className).toEqual('vatsim-fir-label-active');
     }));
   });
 });
