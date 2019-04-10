@@ -70,6 +70,7 @@ export class MapService {
   ) {
     this.vatsimService.airports.pipe(
       tap(() => this.airports.clearLayers()),
+      tap(() => this.tmas.clearLayers()),
     ).subscribe(airports => airports.forEach(ap => this.addAirport(ap)));
 
     this.vatsimService.clients.pipe(
