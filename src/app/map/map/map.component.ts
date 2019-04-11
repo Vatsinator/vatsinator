@@ -1,7 +1,10 @@
 import { Component } from '@angular/core';
-import { Map, MapOptions, tileLayer, LeafletEvent } from 'leaflet';
+import 'leaflet-easybutton';
+import { Map, MapOptions, tileLayer, LeafletEvent, easyButton } from 'leaflet';
 import { MapService } from '../map.service';
 import { MapViewService } from '../map-view.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { AboutDialogComponent } from '@app/shared/about-dialog/about-dialog.component';
 
 @Component({
   selector: 'app-map',
@@ -27,10 +30,13 @@ export class MapComponent {
   constructor(
     private mapService: MapService,
     private mapViewService: MapViewService,
+    private ngbModal: NgbModal,
   ) { }
 
   onMapReady(theMap: Map) {
     this.mapService.addMap(theMap);
+
+    easyButton('fa-info', () => this.openAboutDialog(), 'About').addTo(theMap);
   }
 
   onMoveEnd(event: LeafletEvent) {
@@ -43,6 +49,10 @@ export class MapComponent {
     const map = event.target as Map;
     this.mapViewService.zoom = map.getZoom();
     this.mapViewService.save();
+  }
+
+  private openAboutDialog() {
+    this.ngbModal.open(AboutDialogComponent, { size: 'sm', centered: true });
   }
 
 }

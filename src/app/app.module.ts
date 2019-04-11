@@ -7,6 +7,7 @@ import { MapModule } from './map/map.module';
 import { API_URL } from './api-url';
 import { environment } from 'src/environments/environment';
 import { VatsimModule } from './vatsim/vatsim.module';
+import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -15,6 +16,7 @@ import { VatsimModule } from './vatsim/vatsim.module';
   imports: [
     BrowserModule,
     LeafletModule.forRoot(),
+    NgbModalModule,
 
     MapModule,
     VatsimModule,
