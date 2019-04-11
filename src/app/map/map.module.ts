@@ -8,6 +8,7 @@ import { AirportPipe } from './airport.pipe';
 import { AirportTooltipComponent } from './airport-tooltip/airport-tooltip.component';
 import { FirTooltipComponent } from './fir-tooltip/fir-tooltip.component';
 import { VatsimModule } from '@app/vatsim/vatsim.module';
+import { SharedModule } from '@app/shared/shared.module';
 
 @NgModule({
   imports: [
@@ -15,6 +16,7 @@ import { VatsimModule } from '@app/vatsim/vatsim.module';
     LeafletModule,
     HttpClientModule,
 
+    SharedModule,
     VatsimModule,
   ],
   declarations: [
