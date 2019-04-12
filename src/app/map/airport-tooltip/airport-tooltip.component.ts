@@ -1,5 +1,5 @@
-import { Component, Input } from '@angular/core';
-import { Airport } from '@app/vatsim/models';
+import { Component, Input, } from '@angular/core';
+import { Airport, Atc } from '@app/vatsim/models';
 
 @Component({
   selector: 'app-airport-tooltip',
@@ -10,5 +10,8 @@ export class AirportTooltipComponent {
 
   @Input()
   airport: Airport;
+
+  @Input()
+  atcs: Atc[];
 
 }

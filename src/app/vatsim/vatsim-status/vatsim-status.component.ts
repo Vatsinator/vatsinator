@@ -15,7 +15,10 @@ export class VatsimStatusComponent {
   constructor(
     private vatsimService: VatsimService,
   ) {
-    this.update = this.vatsimService.general.pipe(pluck('update'));
+    this.update = this.vatsimService.data.pipe(
+      pluck('general'),
+      pluck('update'),
+    );
   }
 
 }

@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { VatsimService } from '@app/vatsim/vatsim.service';
-import { latLng, layerGroup, Map, polyline, Polyline, LatLng, polygon, circle } from 'leaflet';
+import { latLng, layerGroup, Map, polyline, LatLng, polygon, circle } from 'leaflet';
 import { MarkerService } from './marker.service';
-import { Pilot } from '@app/vatsim/models/pilot';
-import { map, tap } from 'rxjs/operators';
-import { Airport, isAirport, Fir, Atc } from '@app/vatsim/models';
-import { Subject, fromEvent } from 'rxjs';
+import { Pilot, isPilot } from '@app/vatsim/models/pilot';
+import { map, filter, first } from 'rxjs/operators';
+import { Airport, Fir } from '@app/vatsim/models';
+import { fromEvent, zip } from 'rxjs';
 
 /** Create a solid line */
 function makeOutboundLine(points: LatLng[]) {
@@ -15,37 +15,6 @@ function makeOutboundLine(points: LatLng[]) {
 /** Create dashed line */
 function makeInboundLine(points: LatLng[]) {
   return polyline(points, { color: '#85a4a4', weight: 2, dashArray: [10, 8] });
-}
-
-function generateFlightLines(flight: Pilot): Polyline[] {
-  const lines = [];
-
-  if (isAirport(flight.from)) {
-    const points = [latLng(flight.from.position), latLng(flight.position)];
-    lines.push(makeOutboundLine(points));
-  }
-
-  if (isAirport(flight.to)) {
-    const points = [latLng(flight.to.position), latLng(flight.position)];
-    lines.push(makeInboundLine(points));
-  }
-
-  return lines;
-}
-
-function generateAirportLines(airport: Airport): Polyline[] {
-  return [
-    ...(airport.inboundFlights as Pilot[]).map(flight => {
-      if (flight) {
-        return makeInboundLine([latLng(airport.position), latLng(flight.position)]);
-      }
-    }),
-    ...(airport.outboundFlights as Pilot[]).map(flight => {
-      if (flight) {
-        return makeOutboundLine([latLng(airport.position), latLng(flight.position)]);
-      }
-    }),
-  ];
 }
 
 @Injectable({
@@ -59,35 +28,21 @@ export class MapService {
   private flights = layerGroup([], { pane: 'flights' });
   private lines = layerGroup([], { pane: 'lines' });
 
-  private flightLines = new Subject<Pilot>();
-  private airportLines = new Subject<Airport>();
-
   constructor(
     private vatsimService: VatsimService,
     private markerService: MarkerService,
   ) {
-    this.vatsimService.airports.pipe(
-      tap(() => this.airports.clearLayers()),
-      tap(() => this.tmas.clearLayers()),
-    ).subscribe(airports => airports.forEach(ap => this.addAirport(ap)));
+    this.vatsimService.data.subscribe(data => {
+      this.firs.clearLayers();
+      data.firs.forEach(fir => this.addFir(fir));
 
-    this.vatsimService.clients.pipe(
-      map(clients => clients.filter(c => c.type === 'pilot')),
-      map(flights => flights.filter((f: Pilot) => f.flightPhase === 'airborne')),
-      tap(() => this.flights.clearLayers()),
-    ).subscribe(flights => flights.forEach((f: Pilot) => this.addFlight(f)));
+      this.airports.clearLayers();
+      this.tmas.clearLayers();
+      data.activeAirports.forEach(ap => this.addAirport(ap));
 
-    this.vatsimService.firs.pipe(
-      tap(() => this.firs.clearLayers()),
-    ).subscribe(firs => firs.forEach(fir => this.addFir(fir)));
-
-    this.flightLines.pipe(
-      map(flight => generateFlightLines(flight)),
-    ).subscribe(lines => lines.forEach(line => line.addTo(this.lines)));
-
-    this.airportLines.pipe(
-      map(airport => generateAirportLines(airport)),
-    ).subscribe(lines => lines.forEach(line => line.addTo(this.lines)));
+      this.flights.clearLayers();
+      data.clients.filter(c => isPilot(c) && c.flightPhase === 'airborne').forEach((p: Pilot) => this.addFlight(p));
+    });
   }
 
   addMap(theMap: Map) {
@@ -112,8 +67,22 @@ export class MapService {
     aircraftMarker.addTo(this.flights);
   }
 
-  showFlightLines(pilot: Pilot) {
-    this.flightLines.next(pilot);
+  showFlightLines(flight: Pilot) {
+    const outboundLine = this.vatsimService.data.pipe(
+      map(data => data.activeAirports.find(ap => ap.icao === flight.from)),
+      filter(ap => !!ap),
+      map(ap => makeOutboundLine([latLng(ap.position), latLng(flight.position)])),
+    );
+
+    const inboundLine = this.vatsimService.data.pipe(
+      map(data => data.activeAirports.find(ap => ap.icao === flight.to)),
+      filter(ap => !!ap),
+      map(ap => makeInboundLine([latLng(ap.position), latLng(flight.position)])),
+    );
+
+    zip(outboundLine, inboundLine).pipe(
+      first(),
+    ).subscribe(lines => lines.forEach(line => line.addTo(this.lines)));
   }
 
   addAirport(airport: Airport) {
@@ -122,7 +91,8 @@ export class MapService {
     fromEvent(airportMarker, 'tooltipclose').subscribe(() => this.clearLines());
     airportMarker.addTo(this.airports);
 
-    if ((airport.atcs as Atc[]).filter(atc => atc.facility === 'APP').length > 0) {
+    // draw TMA circle
+    if (airport.atcs.filter(callsign => callsign.match(/_APP$/)).length > 0) {
       circle(latLng(airport.position), {
         radius: 50000,
         fillColor: '#0059ff',
@@ -134,7 +104,21 @@ export class MapService {
   }
 
   showAirportLines(airport: Airport) {
-    this.airportLines.next(airport);
+    const inbound = this.vatsimService.data.pipe(
+      first(),
+      map(data => data.clients.filter(c => isPilot(c) && c.to === airport.icao)),
+      map(flights => flights.map(f => makeInboundLine([latLng(airport.position), latLng(f.position)]))),
+    );
+
+    const outbound = this.vatsimService.data.pipe(
+      first(),
+      map(data => data.clients.filter(c => isPilot(c) && c.from === airport.icao)),
+      map(flights => flights.map(f => makeOutboundLine([latLng(airport.position), latLng(f.position)]))),
+    );
+
+    return zip(inbound, outbound).pipe(
+      map(([inboundLines, outboundLines]) => [...inboundLines, ...outboundLines])
+    ).subscribe(lines => lines.forEach(line => line.addTo(this.lines)));
   }
 
   /** Clear all lines */

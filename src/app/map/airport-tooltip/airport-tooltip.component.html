@@ -4,7 +4,7 @@
     <span class="name">{{ airport?.name }}<ng-container *ngIf="airport?.city">, {{ airport.city }}</ng-container></span>
   </div>
 
-  <div *ngFor="let atc of airport?.atcs">
+  <div *ngFor="let atc of atcs">
     <span class="atc">{{ atc.callsign }} {{ atc.frequency }}</span>
   </div>
 </div>

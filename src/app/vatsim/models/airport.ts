@@ -1,6 +1,3 @@
-import { Pilot } from './pilot';
-import { Atc } from './atc';
-
 export interface Airport {
   icao: string;
   iata: string;
@@ -10,9 +7,9 @@ export interface Airport {
   alias: string;
   fir: string;
 
-  inboundFlights: string[] | Pilot[];
-  outboundFlights: string[] | Pilot[];
-  atcs: string[] | Atc[];
+  inboundFlights: string[];
+  outboundFlights: string[];
+  atcs: string[];
 }
 
 export function isAirport(object: any): object is Airport {
