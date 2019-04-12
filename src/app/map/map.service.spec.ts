@@ -7,9 +7,7 @@ import { Airport, Client, Fir, Pilot } from '@app/vatsim/models';
 import { Map, Layer, marker, latLng } from 'leaflet';
 
 class VatsimServiceStub {
-  airports = new Subject<Airport[]>();
-  clients = new Subject<Client[]>();
-  firs = new Subject<Fir[]>();
+  data = new Subject<any>();
 }
 
 class MarkerServiceStub {
