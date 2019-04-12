@@ -105,19 +105,18 @@ export class MapService {
 
   showAirportLines(airport: Airport) {
     const inbound = this.vatsimService.data.pipe(
-      first(),
       map(data => data.clients.filter(c => isPilot(c) && c.to === airport.icao)),
       map(flights => flights.map(f => makeInboundLine([latLng(airport.position), latLng(f.position)]))),
     );
 
     const outbound = this.vatsimService.data.pipe(
-      first(),
       map(data => data.clients.filter(c => isPilot(c) && c.from === airport.icao)),
       map(flights => flights.map(f => makeOutboundLine([latLng(airport.position), latLng(f.position)]))),
     );
 
-    return zip(inbound, outbound).pipe(
-      map(([inboundLines, outboundLines]) => [...inboundLines, ...outboundLines])
+    zip(inbound, outbound).pipe(
+      map(([inboundLines, outboundLines]) => [...inboundLines, ...outboundLines]),
+      first(),
     ).subscribe(lines => lines.forEach(line => line.addTo(this.lines)));
   }
 

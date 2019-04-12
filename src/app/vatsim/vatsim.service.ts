@@ -1,21 +1,17 @@
 import { Injectable, Inject } from '@angular/core';
 import { API_URL } from '../api-url';
-import { ReplaySubject, zip, Observable } from 'rxjs';
+import { ReplaySubject, zip } from 'rxjs';
 import { VatsimData, Fir } from './models';
 import { HttpClient } from '@angular/common/http';
-import { switchMap, defaultIfEmpty, map, shareReplay } from 'rxjs/operators';
+import { switchMap, defaultIfEmpty, map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class VatsimService {
 
-  private dataSource = new ReplaySubject<VatsimData>(1);
-
-  readonly data: Observable<VatsimData & { firs: Fir[] }> = this.dataSource.asObservable().pipe(
-    switchMap(data => this.resolveFirs(data)),
-    shareReplay(),
-  );
+  private dataSource = new ReplaySubject<VatsimData & { firs: Fir[] }>(1);
+  readonly data = this.dataSource.asObservable();
 
   constructor(
     private http: HttpClient,
@@ -26,7 +22,9 @@ export class VatsimService {
   }
 
   refresh() {
-    this.http.get<VatsimData>(`${this.apiUrl}/vatsim/data`).subscribe(response => this.dataSource.next(response));
+    this.http.get<VatsimData>(`${this.apiUrl}/vatsim/data`).pipe(
+      switchMap(response => this.resolveFirs(response)),
+    ).subscribe(data => this.dataSource.next(data));
   }
 
   private resolveFirs(response: VatsimData) {
