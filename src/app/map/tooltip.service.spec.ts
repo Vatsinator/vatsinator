@@ -6,6 +6,8 @@ import { FlightTooltipComponent } from './flight-tooltip/flight-tooltip.componen
 import { CommonModule } from '@angular/common';
 import { AirportTooltipComponent } from './airport-tooltip/airport-tooltip.component';
 import { FirTooltipComponent } from './fir-tooltip/fir-tooltip.component';
+import { BehaviorSubject } from 'rxjs';
+import { VatsimService } from '@app/vatsim/vatsim.service';
 
 @Pipe({ name: 'airport' })
 class AirportPipeStub implements PipeTransform {
@@ -26,13 +28,23 @@ class AirportPipeStub implements PipeTransform {
     FlightTooltipComponent,
     AirportTooltipComponent,
     FirTooltipComponent,
-  ]
+  ],
 })
 class TestModule { }
+
+class VatsimServiceStub {
+  data = new BehaviorSubject<any>({
+    activeAirports: [],
+    clients: [],
+  });
+}
 
 describe('TooltipService', () => {
   beforeEach(async(() => TestBed.configureTestingModule({
     imports: [ TestModule ],
+    providers: [
+      { provide: VatsimService, useClass: VatsimServiceStub },
+    ],
   }).compileComponents()));
 
   it('should be created', () => {
