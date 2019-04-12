@@ -4,7 +4,7 @@ import { of } from 'rxjs';
 import { VatsimService } from '../vatsim.service';
 
 class VatsimServiceStub {
-  general = of({ update: new Date() });
+  data = of({ general: { update: new Date() }});
 }
 
 describe('VatsimStatusComponent', () => {
