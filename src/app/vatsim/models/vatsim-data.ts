@@ -1,4 +1,4 @@
-import { Client, Airport } from '.';
+import { Client, Airport, Fir, Uir } from '.';
 
 export interface VatsimData {
   general: {
@@ -11,4 +11,6 @@ export interface VatsimData {
 
   clients: Client[];
   activeAirports: Airport[];
+  firs: Fir[];
+  uirs: Uir[];
 }

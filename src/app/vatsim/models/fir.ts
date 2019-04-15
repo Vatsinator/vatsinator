@@ -1,5 +1,3 @@
-import { Atc } from '@app/vatsim/models/atc';
-
 export interface Fir {
   icao: string;
   name: string;
@@ -10,5 +8,6 @@ export interface Fir {
   labelPosition: [number, number];
   oceanic: boolean;
 
-  atcs?: Atc[];
+  /** List of ATC callsigns */
+  atcs?: string[];
 }
