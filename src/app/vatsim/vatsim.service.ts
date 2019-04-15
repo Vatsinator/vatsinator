@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@angular/core';
 import { API_URL } from '../api-url';
 import { ReplaySubject, zip } from 'rxjs';
 import { VatsimData, Fir, isAtc } from './models';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { switchMap, defaultIfEmpty, map, tap } from 'rxjs/operators';
 import { Uir } from './models/uir';
 
@@ -30,21 +30,20 @@ export class VatsimService {
 
   private resolveFirs(response: VatsimData) {
     const uirs = [...new Set(response.clients
-        .filter(client => isAtc(client))
-        .map((atc: any) => atc.uir))].filter(uir => !!uir);
-
-    console.log(JSON.stringify(uirs));
+      .filter(client => isAtc(client))
+      .map((atc: any) => atc.uir))].filter(uir => !!uir);
 
     const firs = [...new Set(response.clients
       .filter(client => client.type === 'atc')
       .map((atc: any) => atc.fir))].filter(fir => !!fir);
 
-    return zip(...uirs.map(uir => this.http.get<Uir>(`${this.apiUrl}/firs/${uir}`))).pipe(
+    return this.http.get<Uir[]>(`${this.apiUrl}/firs`, { params: new HttpParams().set('icao', uirs.join(',')) }).pipe(
       defaultIfEmpty([]),
       map(uirsRes => uirsRes.reduce((acc, uir) => acc.concat(uir.firs), [])),
       map(firsToFetch => [ ...firs, ...firsToFetch ]),
-      tap(res => console.log(JSON.stringify(res))),
-      switchMap(firsToFetch => zip(...firsToFetch.map(icao => this.http.get<Fir>(`${this.apiUrl}/firs/${icao}`)))),
+      switchMap(firsToFetch => this.http.get<Fir[]>(`${this.apiUrl}/firs`,
+        { params: new HttpParams().set('icao', firsToFetch.join(',')) }
+      )),
       defaultIfEmpty([]),
       map(firsRes => ({ ...response, firs: firsRes })),
     );
