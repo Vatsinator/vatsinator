@@ -10,4 +10,5 @@ export interface Fir {
 
   /** List of ATC callsigns */
   atcs?: string[];
+  hasUirAtcsOnly: boolean;
 }

@@ -76,7 +76,7 @@ export class MarkerService {
   fir(fir: Fir): Marker {
     const label = divIcon({
       html: fir.icao,
-      className: 'vatsim-fir-label-active',
+      className: fir.hasUirAtcsOnly ? 'vatsim-fir-label-uir' : 'vatsim-fir-label-active',
       iconSize: [100, 16],
       tooltipAnchor: [50, -8],
     });

@@ -56,19 +56,21 @@ export class VatsimService {
       switchMap(firsInUirs => this.http.get<Fir[]>(`${this.apiUrl}/firs`,
         { params: new HttpParams().set('icao', firsInUirs.join(',')) }
       )),
-      map(firs => firs.map(fir => (
-        { ...fir,
+      map(firs => firs.map(fir => {
+        const firAtcs = response.clients
+          .filter(client => isAtc(client) && client.fir === fir.icao)
+          .map(c => c.callsign);
+        return { ...fir,
+          hasUirAtcsOnly: firAtcs.length === 0,
           atcs: [
-            ...response.clients
-              .filter(client => isAtc(client) && client.fir === fir.icao)
-              .map(c => c.callsign),
+            ...firAtcs,
             ...uirs
               .filter(uir => uir.firs.find(f => f === fir.icao))
               .map(u => u.atcs)
               .reduce((acc, x) => acc.concat(x), [])
           ]
-        }
-      ))),
+        };
+      })),
       map(firs => ({ ...response, firs, uirs })),
     );
   }

@@ -1,6 +1,15 @@
-.vatsim-fir-label-active {
-  color: #9d5656;
+@mixin make-fir-label {
   font-weight: bolder;
   white-space: nowrap;
   text-align: center;
+}
+
+.vatsim-fir-label-active {
+  @include make-fir-label();
+  color: #9d5656;
+}
+
+.vatsim-fir-label-uir {
+  @include make-fir-label();
+  color: #2191b0;
 }
