@@ -126,6 +126,7 @@ export class MapService {
   }
 
   addFir(fir: Fir) {
+    // fixme: move these color to config?
     const color = fir.hasUirAtcsOnly ? '#8fbecf' : '#b02020';
     polygon(fir.boundaries, {
       color, fillColor: color,
