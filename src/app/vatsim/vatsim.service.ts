@@ -57,7 +57,7 @@ export class VatsimService {
         }
       ))),
       map(uirsRes => uirsRes.reduce((acc, uir) => acc.concat(uir.firs), [])),
-      map(firsInUirs => [ ...firsToFetch, ...firsInUirs ]),
+      map(firsInUirs => [ ...new Set([ ...firsToFetch, ...firsInUirs ])]),
       switchMap(firs => this.fetchFirs(firs)),
       map(firs => firs.map(fir => {
         const firAtcs = response.clients
