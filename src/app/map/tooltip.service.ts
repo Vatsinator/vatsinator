@@ -47,7 +47,7 @@ export class TooltipService {
   forFir(fir: Fir): HTMLElement {
     return this.create(FirTooltipComponent, componentRef => {
       componentRef.instance.fir = fir;
-      componentRef.instance.atcs = this.clients.filter(c => isAtc(c) && c.fir === fir.icao) as Atc[];
+      componentRef.instance.atcs = this.clients.filter(c => isAtc(c) && fir.atcs.indexOf(c.callsign) >= 0) as Atc[];
     });
   }
 

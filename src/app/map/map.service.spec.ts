@@ -14,6 +14,7 @@ class MarkerServiceStub {
   marker = marker(latLng(0, 0));
   aircraft(pilot: Pilot) { return this.marker; }
   airport(airport: Airport) { return this.marker; }
+  fir(fir: Fir) { return this.marker; }
 }
 
 class MapStub {
@@ -87,6 +88,14 @@ describe('MapService', () => {
   describe('#showAirportLines()', () => {
     it('should generate lines');
     it('should add lines to lines layer');
+  });
+
+  describe('#addFir()', () => {
+    it('should add marker', inject([MapService], (service: MapService) => {
+      const spy = spyOn(TestBed.get(MarkerService), 'fir').and.callThrough();
+      service.addFir({ boundaries: [] } as Fir);
+      expect(spy).toHaveBeenCalled();
+    }));
   });
 
   describe('#clearLines()', () => {
