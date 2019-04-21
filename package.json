@@ -23,7 +23,7 @@
     "@asymmetrik/ngx-leaflet": "^5.0.1",
     "@ng-bootstrap/ng-bootstrap": "^4.1.1",
     "bootstrap": "^4.3.1",
-    "core-js": "^3.0.1",
+    "core-js": "^2.6.5",
     "leaflet": "^1.4.0",
     "leaflet-easybutton": "^2.4.0",
     "leaflet-rotatedmarker": "^0.2.0",
@@ -53,6 +53,6 @@
     "protractor": "~5.4.0",
     "ts-node": "~8.1.0",
     "tslint": "~5.16.0",
-    "typescript": "~3.4.4"
+    "typescript": "^3.2.4"
   }
 }
