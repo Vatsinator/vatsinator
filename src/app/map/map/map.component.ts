@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import 'leaflet-easybutton';
-import { Map, MapOptions, tileLayer, LeafletEvent, easyButton } from 'leaflet';
+import { Map, MapOptions, tileLayer, LeafletEvent, easyButton, Control, DomUtil } from 'leaflet';
 import { MapService } from '../map.service';
 import { MapViewService } from '../map-view.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -35,8 +35,23 @@ export class MapComponent {
 
   onMapReady(theMap: Map) {
     this.mapService.addMap(theMap);
-
     easyButton('fa-info', () => this.openAboutDialog(), 'About').addTo(theMap);
+
+    const statusControl = Control.extend({
+      options: {
+        position: 'bottomleft',
+      },
+
+      onAdd(map) {
+        const container = DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+        container.style.backgroundColor = 'white';
+        container.style.padding = '.25rem 1rem';
+        container.innerHTML = 'status';
+        return container;
+      },
+    });
+
+    theMap.addControl(new statusControl());
   }
 
   onMoveEnd(event: LeafletEvent) {
