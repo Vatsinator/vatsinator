@@ -5,3 +5,7 @@
      (leafletMapMoveEnd)="onMoveEnd($event)"
      (leafletMapZoomEnd)="onZoomEnd($event)">
 </div>
+
+<app-vatsim-status
+  class="leaflet-bar leaflet-control leaflet-control-custom vatsim-status"
+  [updated]="updated | async"></app-vatsim-status>

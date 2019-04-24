@@ -1,10 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import 'leaflet-easybutton';
-import { Map, MapOptions, tileLayer, LeafletEvent, easyButton, Control, DomUtil } from 'leaflet';
+import { Map, MapOptions, tileLayer, LeafletEvent, easyButton, Control } from 'leaflet';
 import { MapService } from '../map.service';
 import { MapViewService } from '../map-view.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AboutDialogComponent } from '@app/shared/about-dialog/about-dialog.component';
+import { VatsimService } from '@app/vatsim/vatsim.service';
+import { Observable } from 'rxjs';
+import { pluck } from 'rxjs/operators';
+import { VatsimStatusComponent } from '../vatsim-status/vatsim-status.component';
 
 @Component({
   selector: 'app-map',
@@ -27,31 +31,30 @@ export class MapComponent {
     preferCanvas: true,
   };
 
+  updated: Observable<Date>;
+
+  @ViewChild(VatsimStatusComponent, { read: ElementRef })
+  vatsimStatus: ElementRef;
+
   constructor(
     private mapService: MapService,
     private mapViewService: MapViewService,
     private ngbModal: NgbModal,
-  ) { }
+    private vatsimService: VatsimService,
+  ) {
+    this.updated = this.vatsimService.data.pipe(
+      pluck('general'),
+      pluck('update'),
+    );
+  }
 
   onMapReady(theMap: Map) {
     this.mapService.addMap(theMap);
     easyButton('fa-info', () => this.openAboutDialog(), 'About').addTo(theMap);
 
-    const statusControl = Control.extend({
-      options: {
-        position: 'bottomleft',
-      },
-
-      onAdd(map) {
-        const container = DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
-        container.style.backgroundColor = 'white';
-        container.style.padding = '.25rem 1rem';
-        container.innerHTML = 'status';
-        return container;
-      },
-    });
-
-    theMap.addControl(new statusControl());
+    const statusControl = new Control({ position: 'bottomleft' });
+    statusControl.onAdd = () => this.vatsimStatus.nativeElement;
+    statusControl.addTo(theMap);
   }
 
   onMoveEnd(event: LeafletEvent) {
