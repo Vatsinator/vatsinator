@@ -44,6 +44,12 @@ describe('MapService', () => {
   }));
 
   describe('#addMap()', () => {
+    it('emits added map', inject([MapService], (service: MapService) => {
+      const newMap = new MapStub() as Map;
+      service.map.subscribe(map => expect(map).toBe(newMap));
+      service.addMap(newMap);
+    }));
+
     it('creates panes', inject([MapService], (service: MapService) => {
       const map = new MapStub() as Map;
       const spy = spyOn(map, 'createPane').and.callThrough();
