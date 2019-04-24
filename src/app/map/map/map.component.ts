@@ -7,8 +7,10 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AboutDialogComponent } from '@app/shared/about-dialog/about-dialog.component';
 import { VatsimService } from '@app/vatsim/vatsim.service';
 import { Observable } from 'rxjs';
-import { pluck } from 'rxjs/operators';
+import { pluck, map } from 'rxjs/operators';
 import { VatsimStatusComponent } from '../vatsim-status/vatsim-status.component';
+import { VatsimStatusNumbers } from '../models/vatsim-status-numbers';
+import { isPilot, isAtc } from '@app/vatsim/models';
 
 @Component({
   selector: 'app-map',
@@ -32,6 +34,7 @@ export class MapComponent {
   };
 
   updated: Observable<Date>;
+  vatsimStatusNumbers: Observable<VatsimStatusNumbers>;
 
   @ViewChild(VatsimStatusComponent, { read: ElementRef })
   vatsimStatus: ElementRef;
@@ -46,6 +49,14 @@ export class MapComponent {
       pluck('general'),
       pluck('update'),
     );
+
+    this.vatsimStatusNumbers = this.vatsimService.data.pipe(
+      map(data => ({
+        clients: data.general.connectedClients,
+        pilots: data.clients.filter(c => isPilot(c)).length,
+        atcs: data.clients.filter(c => isAtc(c)).length,
+      })),
+    );
   }
 
   onMapReady(theMap: Map) {
@@ -58,14 +69,14 @@ export class MapComponent {
   }
 
   onMoveEnd(event: LeafletEvent) {
-    const map = event.target as Map;
-    this.mapViewService.center = map.getCenter();
+    const theMap = event.target as Map;
+    this.mapViewService.center = theMap.getCenter();
     this.mapViewService.save();
   }
 
   onZoomEnd(event: LeafletEvent) {
-    const map = event.target as Map;
-    this.mapViewService.zoom = map.getZoom();
+    const theMap = event.target as Map;
+    this.mapViewService.zoom = theMap.getZoom();
     this.mapViewService.save();
   }
 

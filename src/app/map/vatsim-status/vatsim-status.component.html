@@ -1,3 +1,4 @@
-<div>
+<div class="d-flex flex-column align-items-center">
   <span *ngIf="updated">Updated: {{ updated | date:'MMM d, y, H:mm' }} UTC</span>
+  <span *ngIf="numbers">{{ numbers.clients }} connected clients ({{ numbers.pilots }} pilots, {{ numbers.atcs }} ATCs)</span>
 </div>
