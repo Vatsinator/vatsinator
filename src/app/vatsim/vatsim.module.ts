@@ -19,4 +19,6 @@ import { VatsimEffects } from './vatsim.effects';
     VatsimStatusComponent,
   ]
 })
+
+@NgModule({ })
 export class VatsimModule { }

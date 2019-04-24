@@ -21,7 +21,7 @@ describe('VatsimStatusComponent', () => {
       declarations: [ VatsimStatusComponent ],
       providers: [
         provideMockStore({ initialState }),
-      ]
+      ],
     })
     .compileComponents();
   }));

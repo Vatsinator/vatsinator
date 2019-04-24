@@ -9,6 +9,7 @@ import { AirportTooltipComponent } from './airport-tooltip/airport-tooltip.compo
 import { FirTooltipComponent } from './fir-tooltip/fir-tooltip.component';
 import { VatsimModule } from '@app/vatsim/vatsim.module';
 import { SharedModule } from '@app/shared/shared.module';
+import { VatsimStatusComponent } from './vatsim-status/vatsim-status.component';
 
 @NgModule({
   imports: [
@@ -25,6 +26,7 @@ import { SharedModule } from '@app/shared/shared.module';
     AirportPipe,
     AirportTooltipComponent,
     FirTooltipComponent,
+    VatsimStatusComponent,
   ],
   exports: [
     MapComponent,
