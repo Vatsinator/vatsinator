@@ -9,6 +9,7 @@ import { VatsimModule } from './vatsim/vatsim.module';
 import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
+import { SidebarModule } from './sidebar/sidebar.module';
 
 @NgModule({
   declarations: [
@@ -22,6 +23,7 @@ import { EffectsModule } from '@ngrx/effects';
     EffectsModule.forRoot([]),
 
     MapModule,
+    SidebarModule,
     VatsimModule,
   ],
   providers: [

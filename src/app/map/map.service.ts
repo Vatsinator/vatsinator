@@ -7,7 +7,7 @@ import { Airport, Fir, VatsimData } from '@app/vatsim/models';
 import { Store, select } from '@ngrx/store';
 import { RefreshVatsimData } from '@app/vatsim/vatsim.actions';
 import { getVatsimData, getAirport, getPilots } from '@app/vatsim/vatsim.selectors';
-import { fromEvent, zip, Subject } from 'rxjs';
+import { fromEvent, zip, ReplaySubject } from 'rxjs';
 
 /** Create a solid line */
 function makeOutboundLine(points: LatLng[]) {
@@ -24,13 +24,12 @@ function makeInboundLine(points: LatLng[]) {
 })
 export class MapService {
 
-  private mapSource = new Subject<Map>();
   private firs = layerGroup([], { pane: 'firs' });
   private tmas = layerGroup([], { pane: 'tmas' });
   private airports = layerGroup([], { pane: 'airports' });
   private flights = layerGroup([], { pane: 'flights' });
   private lines = layerGroup([], { pane: 'lines' });
-
+  private mapSource = new ReplaySubject<Map>(1);
   readonly map = this.mapSource.asObservable();
 
   constructor(
