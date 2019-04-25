@@ -6,4 +6,5 @@ export interface Client {
   name: string;
   type: ClientType;
   position: [number, number];
+  onlineFrom: Date;
 }
