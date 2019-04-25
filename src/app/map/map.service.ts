@@ -7,7 +7,7 @@ import { Airport, Fir, VatsimData } from '@app/vatsim/models';
 import { Store, select } from '@ngrx/store';
 import { RefreshVatsimData } from '@app/vatsim/vatsim.actions';
 import { getVatsimData, getAirport, getPilots } from '@app/vatsim/vatsim.selectors';
-import { fromEvent, zip, ReplaySubject } from 'rxjs';
+import { fromEvent, zip, ReplaySubject, Subject } from 'rxjs';
 
 /** Create a solid line */
 function makeOutboundLine(points: LatLng[]) {
@@ -30,7 +30,10 @@ export class MapService {
   private flights = layerGroup([], { pane: 'flights' });
   private lines = layerGroup([], { pane: 'lines' });
   private mapSource = new ReplaySubject<Map>(1);
+  private selectedItemSource = new Subject<Pilot>();
+
   readonly map = this.mapSource.asObservable();
+  readonly selectedItem = this.selectedItemSource.asObservable();
 
   constructor(
     private store: Store<{ vatsimData: VatsimData }>,
@@ -76,6 +79,7 @@ export class MapService {
     const aircraftMarker = this.markerService.aircraft(pilot);
     fromEvent(aircraftMarker, 'tooltipopen').subscribe(() => this.showFlightLines(pilot));
     fromEvent(aircraftMarker, 'tooltipclose').subscribe(() => this.clearLines());
+    fromEvent(aircraftMarker, 'click').subscribe(() => this.selectedItemSource.next(pilot));
     aircraftMarker.addTo(this.flights);
   }
 
@@ -101,6 +105,7 @@ export class MapService {
     const airportMarker = this.markerService.airport(airport);
     fromEvent(airportMarker, 'tooltipopen').subscribe(() => this.showAirportLines(airport));
     fromEvent(airportMarker, 'tooltipclose').subscribe(() => this.clearLines());
+    // fromEvent(airportMarker, 'click').subscribe(() => this.selectedItemSource.next(airport));
     airportMarker.addTo(this.airports);
 
     // draw TMA circle

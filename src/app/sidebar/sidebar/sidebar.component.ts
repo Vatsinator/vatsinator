@@ -1,5 +1,9 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { SidebarService } from '../sidebar.service';
+import { Observable } from 'rxjs';
+import { Pilot } from '@app/vatsim/models';
+import { MapService } from '@app/map/map.service';
+import { Control, control } from 'leaflet';
+import 'leaflet-sidebar-v2';
 
 @Component({
   selector: 'app-sidebar',
@@ -8,15 +12,27 @@ import { SidebarService } from '../sidebar.service';
 })
 export class SidebarComponent implements OnInit {
 
+  private sidebarControl: Control.Sidebar;
+
+  selectedFlight: Observable<Pilot>;
+
   @ViewChild('sidebar', { read: ElementRef })
-  sidebar: ElementRef;
+  set sidebar(sidebar: ElementRef) {
+    this.sidebarControl = control.sidebar({ container: sidebar.nativeElement });
+  }
 
   constructor(
-    private sidebarService: SidebarService,
-  ) { }
+    private mapService: MapService,
+  ) {
+    this.selectedFlight = this.mapService.selectedItem;
+
+    this.mapService.selectedItem.subscribe(() => {
+      this.sidebarControl.open('flight');
+    });
+  }
 
   ngOnInit() {
-    this.sidebarService.registerSidebar(this);
+    this.mapService.map.subscribe(theMap => this.sidebarControl.addTo(theMap));
   }
 
 }

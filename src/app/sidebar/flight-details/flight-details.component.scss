@@ -1,0 +1,17 @@
+.flight-details-airport {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem;
+  flex: 1 0 0;
+
+  .icao {
+    font-weight: bold;
+    font-size: 200%;
+  }
+
+  .name {
+    text-align: center;
+  }
+}

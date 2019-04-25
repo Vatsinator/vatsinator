@@ -1,0 +1,15 @@
+<div class="d-flex flex-column">
+  <div class="d-flex flex-row justify-content-center align-items-center">
+    <div class="flight-details-airport">
+      <span class="icao">{{ pilot.from }}</span>
+      <span *ngIf="departure | async as _departure" class="name">{{ _departure.name }}</span>
+    </div>
+
+    <span><i class="fa fa-chevron-right"></i></span>
+
+    <div class="flight-details-airport">
+      <span class="icao">{{ pilot.to }}</span>
+      <span *ngIf="destination | async as _destination" class="name">{{ _destination.name }}</span>
+    </div>
+  </div>
+</div>
