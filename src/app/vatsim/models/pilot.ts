@@ -6,7 +6,7 @@ export interface Pilot extends Client {
   from: string;
   to: string;
   groundSpeed: number;
-  transponder: number;
+  transponder: string;
   altitude: number;
   route: string;
   remarks: string;
