@@ -25,17 +25,12 @@ describe('VatsimService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should call the api', inject([VatsimService], (service: VatsimService) => {
-    httpController.expectOne('FAKE_HOST/vatsim/data');
-    httpController.verify();
-  }));
-
-  describe('#refresh()', () => {
+  describe('#fetchVatsimData()', () => {
     it('should call api', inject([VatsimService], (service: VatsimService) => {
-      httpController.expectOne('FAKE_HOST/vatsim/data');
-      service.refresh();
+      service.fetchVatsimData().subscribe();
       httpController.expectOne('FAKE_HOST/vatsim/data');
       httpController.verify();
+      expect().nothing();
     }));
 
     describe('processes data', () => {
@@ -44,7 +39,7 @@ describe('VatsimService', () => {
       });
 
       it('when there\'s no FIR', inject([VatsimService], (service: VatsimService) => {
-        service.data.subscribe(data => {
+        service.fetchVatsimData().subscribe(data => {
           expect(data).toBeTruthy();
           expect(data.clients).toBeTruthy();
           expect(data.clients.length).toEqual(0);
@@ -58,7 +53,7 @@ describe('VatsimService', () => {
       }));
 
       it('when there are FIRs but no UIRs', inject([VatsimService], (service: VatsimService) => {
-        service.data.subscribe(data => {
+        service.fetchVatsimData().subscribe(data => {
           expect(data).toBeTruthy();
           expect(data.clients).toBeTruthy();
           expect(data.clients.length).toEqual(1);
@@ -74,7 +69,7 @@ describe('VatsimService', () => {
       }));
 
       it('when there are only UIRs', inject([VatsimService], (service: VatsimService) => {
-        service.data.subscribe(data => {
+        service.fetchVatsimData().subscribe(data => {
           expect(data).toBeTruthy();
           expect(data.clients).toBeTruthy();
           expect(data.clients.length).toEqual(1);
@@ -97,7 +92,7 @@ describe('VatsimService', () => {
       }));
 
       it('when there are FIRs and UIRs', inject([VatsimService], (service: VatsimService) => {
-        service.data.subscribe(data => {
+        service.fetchVatsimData().subscribe(data => {
           expect(data).toBeTruthy();
           expect(data.clients).toBeTruthy();
           expect(data.clients.length).toEqual(2);
