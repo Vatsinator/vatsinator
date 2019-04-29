@@ -137,5 +137,8 @@
       }
     }
   },
-  "defaultProject": "vatsinator"
+  "defaultProject": "vatsinator",
+  "cli": {
+    "defaultCollection": "@ngrx/schematics"
+  }
 }
