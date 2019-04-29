@@ -1,9 +1,10 @@
 import { Injectable, ComponentFactoryResolver, Injector, ApplicationRef, ComponentRef, EmbeddedViewRef, NgZone, Type } from '@angular/core';
-import { Pilot, Airport, Fir, Client, isAtc, Atc } from '@app/vatsim/models';
+import { Pilot, Airport, Fir, Client, isAtc, Atc, VatsimData } from '@app/vatsim/models';
 import { FlightTooltipComponent } from './flight-tooltip/flight-tooltip.component';
 import { AirportTooltipComponent } from './airport-tooltip/airport-tooltip.component';
 import { FirTooltipComponent } from './fir-tooltip/fir-tooltip.component';
-import { VatsimService } from '@app/vatsim/vatsim.service';
+import { Store, select } from '@ngrx/store';
+import { getVatsimData } from '@app/vatsim/vatsim.selectors';
 
 @Injectable({
   providedIn: 'root'
@@ -19,11 +20,13 @@ export class TooltipService {
     private injector: Injector,
     private appRef: ApplicationRef,
     private zone: NgZone,
-    private vatsimService: VatsimService,
+    private store: Store<{ vatsimData: VatsimData }>,
   ) {
     // This is not perfect, but we need async data in sync context because leaflet doesn't
     // let us create tooltips in async way
-    this.vatsimService.data.subscribe(data => {
+    this.store.pipe(
+      select(getVatsimData),
+    ).subscribe((data: VatsimData) => {
       this.clients = data.clients;
       this.airports = data.activeAirports;
     });
