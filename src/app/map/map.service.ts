@@ -46,9 +46,11 @@ export class MapService {
 
       this.flights.clearLayers();
       data.clients.filter(c => isPilot(c) && c.flightPhase === 'airborne').forEach((p: Pilot) => this.addFlight(p));
+
+      setTimeout(() => this.refresh(), data.general.reload * 60 * 1000);
     });
 
-    this.store.dispatch(new RefreshVatsimData());
+    this.refresh();
   }
 
   addMap(theMap: Map) {
@@ -145,6 +147,10 @@ export class MapService {
     .addTo(this.firs);
 
     this.markerService.fir(fir).addTo(this.firs);
+  }
+
+  private refresh() {
+    this.store.dispatch(new RefreshVatsimData());
   }
 
 }

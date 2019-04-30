@@ -21,6 +21,9 @@ describe('MapService', () => {
   const initialState = {
     vatsim: {
       vatsimData: {
+        general: {
+          reload: 1,
+        },
         clients: [],
         activeAirports: [],
         firs: [],
