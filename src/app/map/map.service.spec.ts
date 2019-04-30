@@ -1,14 +1,9 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { MapService } from './map.service';
 import { MarkerService } from './marker.service';
-import { VatsimService } from '@app/vatsim/vatsim.service';
-import { Subject } from 'rxjs';
-import { Airport, Client, Fir, Pilot } from '@app/vatsim/models';
+import { Airport, Fir, Pilot } from '@app/vatsim/models';
 import { Map, Layer, marker, latLng } from 'leaflet';
-
-class VatsimServiceStub {
-  data = new Subject<any>();
-}
+import { provideMockStore } from '@ngrx/store/testing';
 
 class MarkerServiceStub {
   marker = marker(latLng(0, 0));
@@ -23,11 +18,22 @@ class MapStub {
 }
 
 describe('MapService', () => {
+  const initialState = {
+    vatsim: {
+      vatsimData: {
+        clients: [],
+        activeAirports: [],
+        firs: [],
+        uirs: [],
+      },
+    }
+  };
+
   beforeEach(() => TestBed.configureTestingModule({
     providers: [
-      { provide: VatsimService, useClass: VatsimServiceStub },
       { provide: MarkerService, useClass: MarkerServiceStub },
-    ]
+      provideMockStore({ initialState }),
+    ],
   }));
 
   it('should be created', inject([MapService], (service: MapService) => {
