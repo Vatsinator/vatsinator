@@ -1,21 +1,26 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { VatsimStatusComponent } from './vatsim-status.component';
-import { of } from 'rxjs';
-import { VatsimService } from '../vatsim.service';
-
-class VatsimServiceStub {
-  data = of({ general: { update: new Date() }});
-}
+import { provideMockStore } from '@ngrx/store/testing';
 
 describe('VatsimStatusComponent', () => {
   let component: VatsimStatusComponent;
   let fixture: ComponentFixture<VatsimStatusComponent>;
 
+  const initialState = {
+    vatsim: {
+      vatsimData: {
+        general: {
+          update: new Date(),
+        }
+      }
+    }
+  };
+
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ VatsimStatusComponent ],
       providers: [
-        { provide: VatsimService, useClass: VatsimServiceStub },
+        provideMockStore({ initialState }),
       ]
     })
     .compileComponents();

@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import { API_URL } from '../api-url';
-import { ReplaySubject, of } from 'rxjs';
+import { of, Observable } from 'rxjs';
 import { VatsimData, Fir, isAtc, Uir, Atc } from './models';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { switchMap, map, tap } from 'rxjs/operators';
@@ -12,21 +12,15 @@ type VatsimDataResponse = Pick<VatsimData, Exclude<keyof VatsimData, 'firs'|'uir
 })
 export class VatsimService {
 
-  private dataSource = new ReplaySubject<VatsimData>(1);
-  readonly data = this.dataSource.asObservable();
-
   constructor(
     private http: HttpClient,
     @Inject(API_URL) private apiUrl: string,
-  ) {
-    setInterval(() => this.refresh(), 2 * 60 * 1000);
-    this.refresh();
-  }
+  ) { }
 
-  refresh() {
-    this.http.get<VatsimDataResponse>(`${this.apiUrl}/vatsim/data`).pipe(
+  fetchVatsimData(): Observable<VatsimData> {
+    return this.http.get<VatsimDataResponse>(`${this.apiUrl}/vatsim/data`).pipe(
       switchMap(response => this.resolveFirs(response)),
-    ).subscribe(data => this.dataSource.next(data));
+    );
   }
 
   private fetchFirs(firIcaos: string[]) {

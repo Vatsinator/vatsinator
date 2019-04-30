@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
 import { AirportTooltipComponent } from './airport-tooltip/airport-tooltip.component';
 import { FirTooltipComponent } from './fir-tooltip/fir-tooltip.component';
 import { BehaviorSubject } from 'rxjs';
-import { VatsimService } from '@app/vatsim/vatsim.service';
+import { provideMockStore } from '@ngrx/store/testing';
 
 @Pipe({ name: 'airport' })
 class AirportPipeStub implements PipeTransform {
@@ -32,18 +32,20 @@ class AirportPipeStub implements PipeTransform {
 })
 class TestModule { }
 
-class VatsimServiceStub {
-  data = new BehaviorSubject<any>({
-    activeAirports: [],
-    clients: [],
-  });
-}
-
 describe('TooltipService', () => {
+  const initialState = {
+    vatsim: {
+      vatsimData: {
+        activeAirports: [],
+        clients: [],
+      }
+    }
+  };
+
   beforeEach(async(() => TestBed.configureTestingModule({
     imports: [ TestModule ],
     providers: [
-      { provide: VatsimService, useClass: VatsimServiceStub },
+      provideMockStore({ initialState }),
     ],
   }).compileComponents()));
 

@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
-import { VatsimService } from '@app/vatsim/vatsim.service';
 import { latLng, layerGroup, Map, polyline, LatLng, polygon, circle } from 'leaflet';
 import { MarkerService } from './marker.service';
 import { Pilot, isPilot } from '@app/vatsim/models/pilot';
 import { map, filter, first } from 'rxjs/operators';
-import { Airport, Fir } from '@app/vatsim/models';
+import { Airport, Fir, VatsimData } from '@app/vatsim/models';
 import { fromEvent, zip } from 'rxjs';
+import { Store, select } from '@ngrx/store';
+import { RefreshVatsimData } from '@app/vatsim/vatsim.actions';
+import { getVatsimData, getAirport, getPilots } from '@app/vatsim/vatsim.selectors';
 
 /** Create a solid line */
 function makeOutboundLine(points: LatLng[]) {
@@ -29,10 +31,12 @@ export class MapService {
   private lines = layerGroup([], { pane: 'lines' });
 
   constructor(
-    private vatsimService: VatsimService,
+    private store: Store<{ vatsimData: VatsimData }>,
     private markerService: MarkerService,
   ) {
-    this.vatsimService.data.subscribe(data => {
+    this.store.pipe(
+      select(getVatsimData),
+    ).subscribe((data: VatsimData) => {
       this.firs.clearLayers();
       data.firs.forEach(fir => this.addFir(fir));
 
@@ -42,7 +46,11 @@ export class MapService {
 
       this.flights.clearLayers();
       data.clients.filter(c => isPilot(c) && c.flightPhase === 'airborne').forEach((p: Pilot) => this.addFlight(p));
+
+      setTimeout(() => this.refresh(), data.general.reload * 60 * 1000);
     });
+
+    this.refresh();
   }
 
   addMap(theMap: Map) {
@@ -68,14 +76,14 @@ export class MapService {
   }
 
   showFlightLines(flight: Pilot) {
-    const outboundLine = this.vatsimService.data.pipe(
-      map(data => data.activeAirports.find(ap => ap.icao === flight.from)),
+    const outboundLine = this.store.pipe(
+      select(getAirport, { icao: flight.from }),
       filter(ap => !!ap),
       map(ap => makeOutboundLine([latLng(ap.position), latLng(flight.position)])),
     );
 
-    const inboundLine = this.vatsimService.data.pipe(
-      map(data => data.activeAirports.find(ap => ap.icao === flight.to)),
+    const inboundLine = this.store.pipe(
+      select(getAirport, { icao: flight.to }),
       filter(ap => !!ap),
       map(ap => makeInboundLine([latLng(ap.position), latLng(flight.position)])),
     );
@@ -104,13 +112,15 @@ export class MapService {
   }
 
   showAirportLines(airport: Airport) {
-    const inbound = this.vatsimService.data.pipe(
-      map(data => data.clients.filter(c => isPilot(c) && c.to === airport.icao)),
+    const inbound = this.store.pipe(
+      select(getPilots),
+      map(pilots => pilots.filter(pilot => pilot.to === airport.icao)),
       map(flights => flights.map(f => makeInboundLine([latLng(airport.position), latLng(f.position)]))),
     );
 
-    const outbound = this.vatsimService.data.pipe(
-      map(data => data.clients.filter(c => isPilot(c) && c.from === airport.icao)),
+    const outbound = this.store.pipe(
+      select(getPilots),
+      map(pilots => pilots.filter(pilot => pilot.from === airport.icao)),
       map(flights => flights.map(f => makeOutboundLine([latLng(airport.position), latLng(f.position)]))),
     );
 
@@ -137,6 +147,10 @@ export class MapService {
     .addTo(this.firs);
 
     this.markerService.fir(fir).addTo(this.firs);
+  }
+
+  private refresh() {
+    this.store.dispatch(new RefreshVatsimData());
   }
 
 }
