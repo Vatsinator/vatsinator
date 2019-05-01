@@ -5,9 +5,9 @@ import { MapService } from '../map.service';
 import { MapViewService } from '../map-view.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { EMPTY } from 'rxjs';
-import { VatsimService } from '@app/vatsim/vatsim.service';
 import * as L from 'leaflet';
 import { VatsimStatusComponent } from '../vatsim-status/vatsim-status.component';
+import { provideMockStore } from '@ngrx/store/testing';
 
 class MapServiceStub {
   addMap(theMap: Map) { }
@@ -27,6 +27,18 @@ describe('MapComponent', () => {
   let component: MapComponent;
   let fixture: ComponentFixture<MapComponent>;
 
+  const initialState = {
+    vatsim: {
+      vatsimData: {
+        general: {
+          update: new Date(),
+          connectedClients: 42,
+        },
+        clients: [],
+      }
+    }
+  };
+
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [
@@ -36,7 +48,7 @@ describe('MapComponent', () => {
       providers: [
         { provide: MapService, useClass: MapServiceStub },
         { provide: MapViewService, useClass: MapViewServiceStub },
-        { provide: VatsimService, useClass: VatsimServiceStub },
+        provideMockStore({ initialState }),
       ],
       schemas: [ NO_ERRORS_SCHEMA ],
     })
