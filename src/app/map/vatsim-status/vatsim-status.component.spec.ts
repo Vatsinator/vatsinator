@@ -1,27 +1,14 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { VatsimStatusComponent } from './vatsim-status.component';
-import { provideMockStore } from '@ngrx/store/testing';
+import { By } from '@angular/platform-browser';
 
 describe('VatsimStatusComponent', () => {
   let component: VatsimStatusComponent;
   let fixture: ComponentFixture<VatsimStatusComponent>;
 
-  const initialState = {
-    vatsim: {
-      vatsimData: {
-        general: {
-          update: new Date(),
-        }
-      }
-    }
-  };
-
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ VatsimStatusComponent ],
-      providers: [
-        provideMockStore({ initialState }),
-      ],
     })
     .compileComponents();
   }));
@@ -34,5 +21,21 @@ describe('VatsimStatusComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should format updated date', () => {
+    component.updated = new Date(2019, 4, 1, 23, 48, 0, 0);
+    fixture.detectChanges();
+
+    const el = fixture.debugElement.query(By.css('span')).nativeElement as HTMLSpanElement;
+    expect(el.innerText).toEqual('Updated: May 1, 2019, 23:48 UTC');
+  });
+
+  it('should format VATSIM numbers', () => {
+    component.numbers = { clients: 42, pilots: 30, atcs: 12 };
+    fixture.detectChanges();
+
+    const el = fixture.debugElement.query(By.css('span')).nativeElement as HTMLSpanElement;
+    expect(el.innerText).toEqual('42 connected clients (30 pilots, 12 ATCs)');
   });
 });
