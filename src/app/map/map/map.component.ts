@@ -5,12 +5,13 @@ import { MapService } from '../map.service';
 import { MapViewService } from '../map-view.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AboutDialogComponent } from '@app/shared/about-dialog/about-dialog.component';
-import { VatsimService } from '@app/vatsim/vatsim.service';
 import { Observable } from 'rxjs';
 import { pluck, map } from 'rxjs/operators';
 import { VatsimStatusComponent } from '../vatsim-status/vatsim-status.component';
 import { VatsimStatusNumbers } from '../models/vatsim-status-numbers';
 import { isPilot, isAtc } from '@app/vatsim/models';
+import { Store, select } from '@ngrx/store';
+import { getVatsimData } from '@app/vatsim/vatsim.selectors';
 
 @Component({
   selector: 'app-map',
@@ -43,14 +44,16 @@ export class MapComponent {
     private mapService: MapService,
     private mapViewService: MapViewService,
     private ngbModal: NgbModal,
-    private vatsimService: VatsimService,
+    private store: Store<any>,
   ) {
-    this.updated = this.vatsimService.data.pipe(
+    this.updated = this.store.pipe(
+      select(getVatsimData),
       pluck('general'),
       pluck('update'),
     );
 
-    this.vatsimStatusNumbers = this.vatsimService.data.pipe(
+    this.vatsimStatusNumbers = this.store.pipe(
+      select(getVatsimData),
       map(data => ({
         clients: data.general.connectedClients,
         pilots: data.clients.filter(c => isPilot(c)).length,
