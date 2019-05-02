@@ -4,10 +4,10 @@ import { MarkerService } from './marker.service';
 import { Pilot, isPilot } from '@app/vatsim/models/pilot';
 import { map, filter, first } from 'rxjs/operators';
 import { Airport, Fir, VatsimData } from '@app/vatsim/models';
-import { fromEvent, zip } from 'rxjs';
 import { Store, select } from '@ngrx/store';
 import { RefreshVatsimData } from '@app/vatsim/vatsim.actions';
 import { getVatsimData, getAirport, getPilots } from '@app/vatsim/vatsim.selectors';
+import { fromEvent, zip, Subject } from 'rxjs';
 
 /** Create a solid line */
 function makeOutboundLine(points: LatLng[]) {
@@ -24,11 +24,14 @@ function makeInboundLine(points: LatLng[]) {
 })
 export class MapService {
 
+  private mapSource = new Subject<Map>();
   private firs = layerGroup([], { pane: 'firs' });
   private tmas = layerGroup([], { pane: 'tmas' });
   private airports = layerGroup([], { pane: 'airports' });
   private flights = layerGroup([], { pane: 'flights' });
   private lines = layerGroup([], { pane: 'lines' });
+
+  readonly map = this.mapSource.asObservable();
 
   constructor(
     private store: Store<{ vatsimData: VatsimData }>,
@@ -54,6 +57,8 @@ export class MapService {
   }
 
   addMap(theMap: Map) {
+    this.mapSource.next(theMap);
+
     // https://leafletjs.com/reference-1.4.0.html#map-pane
     theMap.createPane('firs').style.zIndex = '510';
     theMap.createPane('tmas').style.zIndex = '520';
