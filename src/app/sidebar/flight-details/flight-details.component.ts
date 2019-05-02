@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { Pilot, Airport } from '@app/vatsim/models';
-import { VatsimService } from '@app/vatsim/vatsim.service';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Store } from '@ngrx/store';
+import { departure, destination } from '@app/vatsim/vatsim.selectors';
 
 @Component({
   selector: 'app-flight-details',
@@ -19,12 +19,8 @@ export class FlightDetailsComponent {
   @Input()
   set pilot(pilot: Pilot) {
     this.mPilot = pilot;
-    this.departure = this.vatsimService.data.pipe(
-      map(data => data.activeAirports.find(ap => ap.icao === pilot.from)),
-    );
-    this.destination = this.vatsimService.data.pipe(
-      map(data => data.activeAirports.find(ap => ap.icao === pilot.to)),
-    );
+    this.departure = this.store.select(departure, { callsign: pilot.callsign });
+    this.destination = this.store.select(destination, { callsign: pilot.callsign });
   }
 
   get pilot() {
@@ -32,7 +28,7 @@ export class FlightDetailsComponent {
   }
 
   constructor(
-    private vatsimService: VatsimService,
+    private store: Store<any>,
   ) { }
 
 }

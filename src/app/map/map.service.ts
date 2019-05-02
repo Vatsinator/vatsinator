@@ -6,8 +6,9 @@ import { map, filter, first } from 'rxjs/operators';
 import { Airport, Fir, VatsimData } from '@app/vatsim/models';
 import { Store, select } from '@ngrx/store';
 import { RefreshVatsimData } from '@app/vatsim/vatsim.actions';
-import { getVatsimData, getAirport, getPilots } from '@app/vatsim/vatsim.selectors';
+import { vatsimData, airport, pilots } from '@app/vatsim/vatsim.selectors';
 import { fromEvent, zip, ReplaySubject, Subject } from 'rxjs';
+import { SidebarSelectItem, SidebarOpen } from '@app/sidebar/sidebar.actions';
 
 /** Create a solid line */
 function makeOutboundLine(points: LatLng[]) {
@@ -30,17 +31,15 @@ export class MapService {
   private flights = layerGroup([], { pane: 'flights' });
   private lines = layerGroup([], { pane: 'lines' });
   private mapSource = new ReplaySubject<Map>(1);
-  private selectedItemSource = new Subject<Pilot>();
 
   readonly map = this.mapSource.asObservable();
-  readonly selectedItem = this.selectedItemSource.asObservable();
 
   constructor(
     private store: Store<{ vatsimData: VatsimData }>,
     private markerService: MarkerService,
   ) {
     this.store.pipe(
-      select(getVatsimData),
+      select(vatsimData),
     ).subscribe((data: VatsimData) => {
       this.firs.clearLayers();
       data.firs.forEach(fir => this.addFir(fir));
@@ -79,19 +78,19 @@ export class MapService {
     const aircraftMarker = this.markerService.aircraft(pilot);
     fromEvent(aircraftMarker, 'tooltipopen').subscribe(() => this.showFlightLines(pilot));
     fromEvent(aircraftMarker, 'tooltipclose').subscribe(() => this.clearLines());
-    fromEvent(aircraftMarker, 'click').subscribe(() => this.selectedItemSource.next(pilot));
+    fromEvent(aircraftMarker, 'click').subscribe(() => this.selectItem(pilot));
     aircraftMarker.addTo(this.flights);
   }
 
   showFlightLines(flight: Pilot) {
     const outboundLine = this.store.pipe(
-      select(getAirport, { icao: flight.from }),
+      select(airport, { icao: flight.from }),
       filter(ap => !!ap),
       map(ap => makeOutboundLine([latLng(ap.position), latLng(flight.position)])),
     );
 
     const inboundLine = this.store.pipe(
-      select(getAirport, { icao: flight.to }),
+      select(airport, { icao: flight.to }),
       filter(ap => !!ap),
       map(ap => makeInboundLine([latLng(ap.position), latLng(flight.position)])),
     );
@@ -101,16 +100,16 @@ export class MapService {
     ).subscribe(lines => lines.forEach(line => line.addTo(this.lines)));
   }
 
-  addAirport(airport: Airport) {
-    const airportMarker = this.markerService.airport(airport);
-    fromEvent(airportMarker, 'tooltipopen').subscribe(() => this.showAirportLines(airport));
+  addAirport(theAirport: Airport) {
+    const airportMarker = this.markerService.airport(theAirport);
+    fromEvent(airportMarker, 'tooltipopen').subscribe(() => this.showAirportLines(theAirport));
     fromEvent(airportMarker, 'tooltipclose').subscribe(() => this.clearLines());
     // fromEvent(airportMarker, 'click').subscribe(() => this.selectedItemSource.next(airport));
     airportMarker.addTo(this.airports);
 
     // draw TMA circle
-    if (airport.atcs.filter(callsign => callsign.match(/_APP$/)).length > 0) {
-      circle(latLng(airport.position), {
+    if (theAirport.atcs.filter(callsign => callsign.match(/_APP$/)).length > 0) {
+      circle(latLng(theAirport.position), {
         radius: 50000,
         fillColor: '#0059ff',
         fillOpacity: 0.2,
@@ -120,17 +119,17 @@ export class MapService {
     }
   }
 
-  showAirportLines(airport: Airport) {
+  showAirportLines(theAirport: Airport) {
     const inbound = this.store.pipe(
-      select(getPilots),
-      map(pilots => pilots.filter(pilot => pilot.to === airport.icao)),
-      map(flights => flights.map(f => makeInboundLine([latLng(airport.position), latLng(f.position)]))),
+      select(pilots),
+      map(allPilots => allPilots.filter(pilot => pilot.to === theAirport.icao)),
+      map(flights => flights.map(f => makeInboundLine([latLng(theAirport.position), latLng(f.position)]))),
     );
 
     const outbound = this.store.pipe(
-      select(getPilots),
-      map(pilots => pilots.filter(pilot => pilot.from === airport.icao)),
-      map(flights => flights.map(f => makeOutboundLine([latLng(airport.position), latLng(f.position)]))),
+      select(pilots),
+      map(allPilots => allPilots.filter(pilot => pilot.from === theAirport.icao)),
+      map(flights => flights.map(f => makeOutboundLine([latLng(theAirport.position), latLng(f.position)]))),
     );
 
     zip(inbound, outbound).pipe(
@@ -160,6 +159,11 @@ export class MapService {
 
   private refresh() {
     this.store.dispatch(new RefreshVatsimData());
+  }
+
+  private selectItem(item: Pilot) {
+    this.store.dispatch(new SidebarSelectItem({ item: { callsign: item.callsign }}));
+    this.store.dispatch(new SidebarOpen());
   }
 
 }

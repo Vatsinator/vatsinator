@@ -11,7 +11,7 @@ import { VatsimStatusComponent } from '../vatsim-status/vatsim-status.component'
 import { VatsimStatusNumbers } from '../models/vatsim-status-numbers';
 import { isPilot, isAtc } from '@app/vatsim/models';
 import { Store, select } from '@ngrx/store';
-import { getVatsimData } from '@app/vatsim/vatsim.selectors';
+import { vatsimData } from '@app/vatsim/vatsim.selectors';
 
 @Component({
   selector: 'app-map',
@@ -47,13 +47,13 @@ export class MapComponent {
     private store: Store<any>,
   ) {
     this.updated = this.store.pipe(
-      select(getVatsimData),
+      select(vatsimData),
       pluck('general'),
       pluck('update'),
     );
 
     this.vatsimStatusNumbers = this.store.pipe(
-      select(getVatsimData),
+      select(vatsimData),
       map(data => ({
         clients: data.general.connectedClients,
         pilots: data.clients.filter(c => isPilot(c)).length,

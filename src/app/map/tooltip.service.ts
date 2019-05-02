@@ -4,7 +4,7 @@ import { FlightTooltipComponent } from './flight-tooltip/flight-tooltip.componen
 import { AirportTooltipComponent } from './airport-tooltip/airport-tooltip.component';
 import { FirTooltipComponent } from './fir-tooltip/fir-tooltip.component';
 import { Store, select } from '@ngrx/store';
-import { getVatsimData } from '@app/vatsim/vatsim.selectors';
+import { vatsimData } from '@app/vatsim/vatsim.selectors';
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +25,7 @@ export class TooltipService {
     // This is not perfect, but we need async data in sync context because leaflet doesn't
     // let us create tooltips in async way
     this.store.pipe(
-      select(getVatsimData),
+      select(vatsimData),
     ).subscribe((data: VatsimData) => {
       this.clients = data.clients;
       this.airports = data.activeAirports;

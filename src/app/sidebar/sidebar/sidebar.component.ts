@@ -1,9 +1,11 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Pilot } from '@app/vatsim/models';
-import { MapService } from '@app/map/map.service';
 import { Control, control } from 'leaflet';
 import 'leaflet-sidebar-v2';
+import { Store, select } from '@ngrx/store';
+import { sidebarState, sidebarSelectedFlight } from '../sidebar.selectors';
+import { MapService } from '@app/map/map.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -22,13 +24,24 @@ export class SidebarComponent implements OnInit {
   }
 
   constructor(
+    private store: Store<any>,
     private mapService: MapService,
   ) {
-    this.selectedFlight = this.mapService.selectedItem;
+    this.store.pipe(
+      select(sidebarState),
+    ).subscribe(state => {
+      switch (this.sidebarControl && state) {
+        case 'opened':
+          this.sidebarControl.open('flight');
+          break;
 
-    this.mapService.selectedItem.subscribe(() => {
-      this.sidebarControl.open('flight');
+        case 'closed':
+          this.sidebarControl.close();
+          break;
+      }
     });
+
+    this.selectedFlight = this.store.pipe(select(sidebarSelectedFlight));
   }
 
   ngOnInit() {
