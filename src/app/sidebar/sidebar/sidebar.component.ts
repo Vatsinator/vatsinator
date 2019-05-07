@@ -8,6 +8,7 @@ import { sidebarState, sidebarSelectedFlight } from '../sidebar.selectors';
 import { MapService } from '@app/map/map.service';
 import { CloseSidebar } from '../sidebar.actions';
 import { takeUntil } from 'rxjs/operators';
+import { AppState } from '@app/app-state';
 
 @Component({
   selector: 'app-sidebar',
@@ -33,7 +34,7 @@ export class SidebarComponent implements OnDestroy {
   }
 
   constructor(
-    private store: Store<any>,
+    private store: Store<AppState>,
     private mapService: MapService,
   ) {
     this.selectedFlight = this.store.pipe(select(sidebarSelectedFlight));
