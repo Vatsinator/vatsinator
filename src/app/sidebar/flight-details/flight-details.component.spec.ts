@@ -1,6 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { FlightDetailsComponent } from './flight-details.component';
+import { provideMockStore } from '@ngrx/store/testing';
 
 describe('FlightDetailsComponent', () => {
   let component: FlightDetailsComponent;
@@ -8,7 +8,10 @@ describe('FlightDetailsComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ FlightDetailsComponent ]
+      declarations: [ FlightDetailsComponent ],
+      providers: [
+        provideMockStore(),
+      ],
     })
     .compileComponents();
   }));
