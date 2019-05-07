@@ -1,51 +1,75 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import { Observable, Subject, combineLatest } from 'rxjs';
 import { Pilot } from '@app/vatsim/models';
-import { Control, control } from 'leaflet';
-import 'leaflet-sidebar-v2';
+import 'leaflet-sidebar';
+import { control } from 'leaflet';
 import { Store, select } from '@ngrx/store';
 import { sidebarState, sidebarSelectedFlight } from '../sidebar.selectors';
 import { MapService } from '@app/map/map.service';
+import { CloseSidebar } from '../sidebar.actions';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss']
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnDestroy {
 
-  private sidebarControl: Control.Sidebar;
+  private sidebarControl = new Subject<any>();
+  private destroyed = new Subject<void>();
 
   selectedFlight: Observable<Pilot>;
 
   @ViewChild('sidebar', { read: ElementRef })
   set sidebar(sidebar: ElementRef) {
-    this.sidebarControl = control.sidebar({ container: sidebar.nativeElement });
+    const sidebarControl = (control as any).sidebar(sidebar.nativeElement, {
+      position: 'left',
+      closeButton: true,
+      autoPan: false,
+    });
+
+    this.sidebarControl.next(sidebarControl);
   }
 
   constructor(
     private store: Store<any>,
     private mapService: MapService,
   ) {
-    this.store.pipe(
-      select(sidebarState),
-    ).subscribe(state => {
-      switch (this.sidebarControl && state) {
+    this.selectedFlight = this.store.pipe(select(sidebarSelectedFlight));
+
+    combineLatest(
+      this.mapService.map,
+      this.sidebarControl,
+    ).pipe(
+      takeUntil(this.destroyed),
+    ).subscribe(([theMap, sidebarControl]) => sidebarControl.addTo(theMap));
+
+    combineLatest(
+      this.store.select(sidebarState),
+      this.sidebarControl,
+    ).pipe(
+      takeUntil(this.destroyed),
+    ).subscribe(([state, sidebarControl]) => {
+      switch (state) {
         case 'opened':
-          this.sidebarControl.open('flight');
+          sidebarControl.show();
           break;
 
         case 'closed':
-          this.sidebarControl.close();
+          sidebarControl.hide();
           break;
       }
     });
-
-    this.selectedFlight = this.store.pipe(select(sidebarSelectedFlight));
   }
 
-  ngOnInit() {
-    this.mapService.map.subscribe(theMap => this.sidebarControl.addTo(theMap));
+  ngOnDestroy() {
+    this.destroyed.next();
+    this.destroyed.unsubscribe();
+  }
+
+  close() {
+    this.store.dispatch(new CloseSidebar());
   }
 
 }

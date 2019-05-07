@@ -2,17 +2,17 @@ import { Action } from '@ngrx/store';
 import { Selectable } from './models/selectable';
 
 export enum SidebarActionTypes {
-  Open = '[Sidebar] Open',
-  Close = '[Sidebar] Close',
+  OpenSidebar = '[Sidebar] Open sidebar',
+  CloseSidebar = '[Sidebar] Close sidebar',
   SelectItem = '[Sidebar] Select item',
 }
 
-export class SidebarOpen implements Action {
-  readonly type = SidebarActionTypes.Open;
+export class OpenSidebar implements Action {
+  readonly type = SidebarActionTypes.OpenSidebar;
 }
 
-export class SidebarClose implements Action {
-  readonly type = SidebarActionTypes.Close;
+export class CloseSidebar implements Action {
+  readonly type = SidebarActionTypes.CloseSidebar;
 }
 
 export class SidebarSelectItem implements Action {
@@ -20,4 +20,4 @@ export class SidebarSelectItem implements Action {
   constructor(public payload: { item: Selectable }) { }
 }
 
-export type SidebarActions = SidebarOpen | SidebarClose | SidebarSelectItem;
+export type SidebarActions = OpenSidebar | CloseSidebar | SidebarSelectItem;

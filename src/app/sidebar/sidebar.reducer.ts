@@ -13,10 +13,10 @@ export const initialState: State = {
 
 export function reducer(state = initialState, action: SidebarActions): State {
   switch (action.type) {
-    case SidebarActionTypes.Open:
+    case SidebarActionTypes.OpenSidebar:
       return { ...state, state: 'opened' };
 
-    case SidebarActionTypes.Close:
+    case SidebarActionTypes.CloseSidebar:
       return { ...state, state: 'closed' };
 
     case SidebarActionTypes.SelectItem:

@@ -8,7 +8,7 @@ import { Store, select } from '@ngrx/store';
 import { RefreshVatsimData } from '@app/vatsim/vatsim.actions';
 import { vatsimData, airport, pilots } from '@app/vatsim/vatsim.selectors';
 import { fromEvent, zip, ReplaySubject, Subject } from 'rxjs';
-import { SidebarSelectItem, SidebarOpen } from '@app/sidebar/sidebar.actions';
+import { SidebarSelectItem, OpenSidebar } from '@app/sidebar/sidebar.actions';
 
 /** Create a solid line */
 function makeOutboundLine(points: LatLng[]) {
@@ -163,7 +163,7 @@ export class MapService {
 
   private selectItem(item: Pilot) {
     this.store.dispatch(new SidebarSelectItem({ item: { callsign: item.callsign }}));
-    this.store.dispatch(new SidebarOpen());
+    this.store.dispatch(new OpenSidebar());
   }
 
 }

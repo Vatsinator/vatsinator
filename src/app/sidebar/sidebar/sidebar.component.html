@@ -1,24 +1,5 @@
-<!-- optionally define the sidebar content via HTML markup -->
-<div #sidebar class="leaflet-sidebar collapsed">
-
-  <!-- nav tabs -->
-  <div class="leaflet-sidebar-tabs">
-    <!-- top aligned tabs -->
-    <ul role="tablist">
-      <li><a href="#flight" role="tab"><i class="fa fa-plane"></i></a></li>
-    </ul>
-  </div>
-
-  <!-- panel content -->
-  <div class="leaflet-sidebar-content">
-    <div class="leaflet-sidebar-pane" id="flight">
-      <ng-container *ngIf="selectedFlight | async as _flight">
-        <h1 class="leaflet-sidebar-header">
-          {{ _flight.callsign }}
-          <span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>
-        </h1>
-        <app-flight-details [pilot]="_flight"></app-flight-details>
-      </ng-container>
-    </div>
-  </div>
+<div #sidebar>
+  <ng-container *ngIf="selectedFlight | async as _flight">
+    <app-flight-details [pilot]="_flight"></app-flight-details>
+  </ng-container>
 </div>
