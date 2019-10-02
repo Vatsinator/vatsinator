@@ -37,7 +37,7 @@ export class MapComponent {
   updated: Observable<Date>;
   vatsimStatusNumbers: Observable<VatsimStatusNumbers>;
 
-  @ViewChild(VatsimStatusComponent, { read: ElementRef })
+  @ViewChild(VatsimStatusComponent, { read: ElementRef, static: false })
   vatsimStatus: ElementRef;
 
   constructor(
