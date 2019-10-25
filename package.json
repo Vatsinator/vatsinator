@@ -21,7 +21,7 @@
     "@angular/platform-browser-dynamic": "^8.2.8",
     "@angular/router": "^8.2.8",
     "@asymmetrik/ngx-leaflet": "^6.0.0",
-    "@ng-bootstrap/ng-bootstrap": "^4.2.1",
+    "@ng-bootstrap/ng-bootstrap": "^5.1.2",
     "@ngrx/effects": "^8.3.0",
     "@ngrx/schematics": "^8.3.0",
     "@ngrx/store": "^8.3.0",
